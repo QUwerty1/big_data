@@ -5,15 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "C#: NotepadServer Debug",
+            "name": "C#: StorageServer Debug",
             "type": "dotnet",
             "request": "launch",
-            "projectPath": "${workspaceFolder}/NotepadServer/NotepadServer.csproj",
+            "projectPath": "${workspaceFolder}/StorageServer/StorageServer.csproj",
         },
         {
-            "name": "Python: notepad_client Debug",
+            "name": "Python: storage_client Debug",
             "type": "debugpy",
-            "program": "${workspaceFolder}/notepad_client/main.py",
+            "program": "${workspaceFolder}/storage_client/main.py",
             "request": "launch",
             "console": "externalTerminal"
         }
