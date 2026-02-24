@@ -3,21 +3,18 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace StorageServer.Controllers;
 
-[Route("api/test")]
+[Route("/test")]
 [ApiController]
 public class TestController : ControllerBase
 {
     [Authorize]
-    [HttpGet]
-    [Route("/private")]
+    [HttpGet("private")]
     public IActionResult AuthorizedMethod()
     {
         return Ok("Success");
     }
 
-    [HttpGet]
-    [Route("/public")]
-
+    [HttpGet("public")]
     public IActionResult PublicMethod()
     {
         return Ok("Success");

@@ -5,8 +5,8 @@ using StorageServer.Models;
 
 namespace StorageServer.Controllers;
 
-[Route("api/[controller]")]
 [ApiController]
+[Route("/user")]
 public class UserController(
     TokenService tokenService,
     UserManager<AppUser> userManager,
