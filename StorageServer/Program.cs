@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using StorageServer.Controllers;
 using StorageServer.Models;
@@ -52,7 +53,26 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddScalarTransformers();
+    options.AddDocumentTransformer((doc, context, cancelToken) =>
+    {
+        doc.Components ??= new OpenApiComponents();
+        doc.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+
+        var scheme = new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+        };
+        
+        doc.Components.SecuritySchemes.Add("Bearer", scheme);
+
+        return Task.CompletedTask;
+    });
+});
 
 builder.Services.AddSingleton<TokenService>();
 
@@ -64,13 +84,12 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference(options =>
     {
-        options.AddApiKeyAuthentication("Bearer", conf =>
+        options.AddPreferredSecuritySchemes("Bearer");
+        options.AddHttpAuthentication("Bearer", scheme =>
         {
-            // conf.Name = "Authorization";
-            conf.WithName("Authorization");
+            scheme.Token = "";
         });
     });
-    // app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();

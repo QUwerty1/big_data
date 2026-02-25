@@ -16,6 +16,12 @@
             "program": "${workspaceFolder}/storage_client/main.py",
             "request": "launch",
             "console": "externalTerminal"
+        },
+        {
+            "name": "C#: Watch Attach",
+            "type": "coreclr",
+            "request": "attach",
+            "processName": "StorageServer"
         }
     ]
 }

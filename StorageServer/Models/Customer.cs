@@ -10,19 +10,18 @@ public class Customer
     public int Id { get; set; }
 
     [MaxLength(60)]
-    public string? CompanyName { get; set; }
+    public required string CompanyName { get; set; }
 
     [MaxLength(16)]
-    public string? Phone { get; set; }
+    public required string Phone { get; set; }
 
-    public string? Address { get; set; }
+    public required string Address { get; set; }
 
     [MaxLength(30)]
-    public string? Email { get; set; }
+    public required string Email { get; set; }
 
     public required virtual ICollection<Sale> Sales { get; set; }
 
-    [ForeignKey(nameof(AppUser))]
     public required string AppUserId { get; set; }
     public AppUser AppUser { get; set; } = null!;
 }

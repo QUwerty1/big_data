@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using StorageServer.Models;
@@ -15,6 +14,8 @@ public class UserController(
 {
 
     [HttpPost("login")]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<string>(StatusCodes.Status200OK)]
     public async Task<IActionResult> Login([FromBody] LoginBody loginBody)
     {
         var user = await userManager.FindByNameAsync(loginBody.UserName);
@@ -25,15 +26,19 @@ public class UserController(
         }
 
         var signResult = await userManager.CheckPasswordAsync(user, loginBody.Password);
+
         if (signResult)
         {
             var token = tokenService.GenerateToken(loginBody.UserName);
             return Ok(token);
         }
+        
         return Unauthorized();
     }
 
     [HttpPost("register")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Register([FromBody] LoginBody loginBody)
     {
         var user = new AppUser
@@ -47,10 +52,12 @@ public class UserController(
         {
             return Created();
         } 
+
         foreach (var e in result.Errors)
         {
             logger.LogInformation(e.Description);
         }
+
         return Unauthorized();
     }
 }
