@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+
 using StorageServer.Models;
 
 namespace StorageServer.Controllers;
@@ -32,7 +34,7 @@ public class UserController(
             var token = tokenService.GenerateToken(loginBody.UserName);
             return Ok(token);
         }
-        
+
         return Unauthorized();
     }
 
@@ -51,7 +53,7 @@ public class UserController(
         if (result.Succeeded)
         {
             return Created();
-        } 
+        }
 
         foreach (var e in result.Errors)
         {
@@ -59,6 +61,15 @@ public class UserController(
         }
 
         return Unauthorized();
+    }
+
+    [HttpGet("is_staff")]
+    [Authorize]
+    public async Task<bool> IsStaff()
+    {
+        var user = await userManager.FindByNameAsync(User.Identity!.Name!);
+
+        return user!.IsStaff;
     }
 }
 

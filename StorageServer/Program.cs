@@ -1,10 +1,13 @@
 using System.Text;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+
 using Scalar.AspNetCore;
+
 using StorageServer.Controllers;
 using StorageServer.Models;
 
@@ -67,7 +70,7 @@ builder.Services.AddOpenApi(options =>
             Scheme = "bearer",
             BearerFormat = "JWT",
         };
-        
+
         doc.Components.SecuritySchemes.Add("Bearer", scheme);
 
         return Task.CompletedTask;

@@ -2,11 +2,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using StorageServer.Models;
 
 namespace StorageServer.Controllers
 {
-    [Route("/customer")]
+    [Route("customer")]
     [ApiController]
     [Authorize]
     public class CustomerController(
@@ -46,7 +47,7 @@ namespace StorageServer.Controllers
 
             if (await appDbContext.Customers.Where(c => c.AppUserId == user!.Id).AnyAsync())
                 return Conflict("Аккаунт покупателя уже существует");
-            
+
             var customer = new Customer
             {
                 CompanyName = customerDTO.CompanyName,
@@ -60,7 +61,7 @@ namespace StorageServer.Controllers
 
             await appDbContext.Customers.AddAsync(customer);
             await appDbContext.SaveChangesAsync();
-            
+
             return Created();
         }
 
@@ -83,14 +84,19 @@ namespace StorageServer.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllAsync()
+        public async Task<IActionResult> GetAllAsync([FromQuery] int? take, [FromQuery] int skip = 0)
         {
             var user = await userManager.FindByNameAsync(User.Identity!.Name!);
-            
+
             if (user!.IsStaff == false)
                 return Forbid();
 
-            var customers = await appDbContext.Customers.ToListAsync();
+            var customers = appDbContext.Customers.Skip(skip);
+
+            if (take != null)
+            {
+                customers = customers.Take(take ?? 0);
+            }
 
             return Ok(customers.Select(c => new CustomerDTOStaff(
                 c.Id, c.CompanyName, c.Phone, c.Address, c.Email, c.AppUserId

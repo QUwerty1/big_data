@@ -8,6 +8,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Product> Products { get; set; }
     public DbSet<Sale> Sales { get; set; }
     public DbSet<SaleUnit> SaleUnits { get; set; }
+    public DbSet<Supplier> Suppliers { get; set; }
+    public DbSet<Supply> Supplies { get; set; }
+    public DbSet<SupplyUnit> SupplyUnits { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

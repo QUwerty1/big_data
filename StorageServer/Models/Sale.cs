@@ -10,8 +10,8 @@ public class Sale
     public int Id { get; set; }
 
     public int CustomerId { get; set; }
-    
-    public required virtual Customer Customer { get; set; }
+
+    public virtual required Customer Customer { get; set; }
 
     public DateTimeOffset RealDate { get; set; }
 

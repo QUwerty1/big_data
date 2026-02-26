@@ -10,7 +10,7 @@ public class Supply
     public int Id { get; set; }
 
     public int SupplierId { get; set; }
-    
+
     public required Supplier Supplier { get; set; }
 
     public DateTimeOffset RealDate { get; set; }

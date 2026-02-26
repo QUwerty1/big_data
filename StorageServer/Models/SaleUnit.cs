@@ -12,7 +12,7 @@ public class SaleUnit
     public int Amount { get; set; }
 
     public int ProductId { get; set; }
-    
+
     public required virtual Product Product { get; set; }
 
     [Column(TypeName = "money")]

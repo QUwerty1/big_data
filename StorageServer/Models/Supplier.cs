@@ -13,12 +13,12 @@ public class Supplier
     public required string CompanyName { get; set; }
 
     [MaxLength(16)]
-    public string? Phone { get; set; }
+    public required string Phone { get; set; }
 
-    public string? Address { get; set; }
+    public required string Address { get; set; }
 
     [MaxLength(30)]
-    public string? Email { get; set; }
+    public required string Email { get; set; }
 
     public required virtual ICollection<Supply> Supplies { get; set; }
 

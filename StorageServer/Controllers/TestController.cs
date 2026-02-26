@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace StorageServer.Controllers;
 
-[Route("/test")]
+[Route("test")]
 [ApiController]
 public class TestController : ControllerBase
 {
