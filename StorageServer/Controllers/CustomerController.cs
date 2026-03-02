@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using StorageServer.DTO;
 using StorageServer.Models;
 
 namespace StorageServer.Controllers
@@ -30,12 +31,12 @@ namespace StorageServer.Controllers
             if (customer == null)
                 return NotFound();
 
-            return Ok(new CustomerDTOStaff(
-                customer.Id,
+            return Ok(new CustomerDTO(
                 customer.CompanyName,
                 customer.Phone,
                 customer.Address,
                 customer.Email,
+                customer.Id,
                 customer.AppUserId
             ));
         }
@@ -98,25 +99,15 @@ namespace StorageServer.Controllers
                 customers = customers.Take(take ?? 0);
             }
 
-            return Ok(customers.Select(c => new CustomerDTOStaff(
-                c.Id, c.CompanyName, c.Phone, c.Address, c.Email, c.AppUserId
+            return Ok(customers.Select(c => new CustomerDTO(
+                c.CompanyName,
+                c.Phone,
+                c.Address,
+                c.Email,
+                c.Id,
+                c.AppUserId
             )));
         }
     }
 }
 
-public record CustomerDTO(
-    string CompanyName,
-    string Phone,
-    string Address,
-    string Email
-);
-
-public record CustomerDTOStaff(
-    int Id,
-    string CompanyName,
-    string Phone,
-    string Address,
-    string Email,
-    string AppUserId
-);

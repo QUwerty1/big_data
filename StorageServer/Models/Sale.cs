@@ -15,9 +15,6 @@ public class Sale
 
     public DateTimeOffset RealDate { get; set; }
 
-    [MaxLength(9)]
-    public required string SaleType { get; set; }
-
     public DateTimeOffset PlannedDate { get; set; }
 
     public required ICollection<SaleUnit> SaleUnits { get; set; }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
+using StorageServer.DTO;
 using StorageServer.Models;
 
 namespace StorageServer.Controllers;
@@ -72,7 +73,3 @@ public class UserController(
         return user!.IsStaff;
     }
 }
-
-public record LoginBody(
-    string UserName, string Password
-);
