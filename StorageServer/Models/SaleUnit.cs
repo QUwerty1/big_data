@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace StorageServer.Models;
 
@@ -13,10 +14,10 @@ public class SaleUnit
 
     public int ProductId { get; set; }
 
-    public required virtual Product Product { get; set; }
+    public virtual Product Product { get; set; } = null!;
 
     [Column(TypeName = "money")]
     public decimal Price { get; set; }
 
-    public required virtual ICollection<Sale> Sales { get; set; }
+    public virtual ICollection<Sale> Sales { get; set; } = [];
 }

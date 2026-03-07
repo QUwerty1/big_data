@@ -139,23 +139,13 @@ namespace StorageServer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CategoryName")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
                     b.Property<decimal>("Price")
                         .HasColumnType("money");
 
                     b.Property<string>("ProductName")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("Units")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
 
@@ -178,11 +168,6 @@ namespace StorageServer.Migrations
 
                     b.Property<DateTimeOffset>("RealDate")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("SaleType")
-                        .IsRequired()
-                        .HasMaxLength(9)
-                        .HasColumnType("nvarchar(9)");
 
                     b.HasKey("Id");
 
@@ -345,19 +330,17 @@ namespace StorageServer.Migrations
 
             modelBuilder.Entity("StorageServer.Models.Sale", b =>
                 {
-                    b.HasOne("StorageServer.Models.Customer", "Customer")
+                    b.HasOne("StorageServer.Models.Customer", null)
                         .WithMany("Sales")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("StorageServer.Models.SaleUnit", b =>
                 {
                     b.HasOne("StorageServer.Models.Product", "Product")
-                        .WithMany("SaleUnits")
+                        .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -378,19 +361,17 @@ namespace StorageServer.Migrations
 
             modelBuilder.Entity("StorageServer.Models.Supply", b =>
                 {
-                    b.HasOne("StorageServer.Models.Supplier", "Supplier")
+                    b.HasOne("StorageServer.Models.Supplier", null)
                         .WithMany("Supplies")
                         .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("StorageServer.Models.SupplyUnit", b =>
                 {
                     b.HasOne("StorageServer.Models.Product", "Product")
-                        .WithMany("SupplyUnits")
+                        .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -423,13 +404,6 @@ namespace StorageServer.Migrations
             modelBuilder.Entity("StorageServer.Models.Customer", b =>
                 {
                     b.Navigation("Sales");
-                });
-
-            modelBuilder.Entity("StorageServer.Models.Product", b =>
-                {
-                    b.Navigation("SaleUnits");
-
-                    b.Navigation("SupplyUnits");
                 });
 
             modelBuilder.Entity("StorageServer.Models.Supplier", b =>

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace StorageServer.Models;
 
@@ -11,10 +12,13 @@ public class SupplyUnit
 
     public int Amount { get; set; }
 
-    public required Product Product { get; set; }
+    public int ProductId { get; set; }
+
+    public virtual Product Product { get; set; } = null!;
 
     [Column(TypeName = "money")]
     public required decimal Price { get; set; }
 
-    public required virtual ICollection<Supply> Supplies { get; set; }
+    [JsonIgnore]
+    public virtual ICollection<Supply> Supplies { get; set; } = [];
 }

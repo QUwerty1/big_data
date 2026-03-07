@@ -16,13 +16,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Riok.Mapperly" Version="4.3.1" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.12.47" />
     <PackageReference Include="Scalar.AspNetCore.Microsoft" Version="2.12.47" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers/" />
-    <Folder Include="DTO/" />
   </ItemGroup>
 
 </Project>

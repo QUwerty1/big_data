@@ -10,6 +10,7 @@ using Scalar.AspNetCore;
 
 using StorageServer.Controllers;
 using StorageServer.Models;
+using StorageServer.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -78,6 +79,7 @@ builder.Services.AddOpenApi(options =>
 });
 
 builder.Services.AddSingleton<TokenService>();
+builder.Services.AddSingleton<MapperService>();
 
 var app = builder.Build();
 

@@ -11,11 +11,11 @@ public class Supply
 
     public int SupplierId { get; set; }
 
-    public required Supplier Supplier { get; set; }
+    public virtual Supplier Supplier { get; set; } = null!;
 
     public DateTimeOffset RealDate { get; set; }
 
     public DateTimeOffset PlannedDate { get; set; }
 
-    public required virtual ICollection<SupplyUnit> SupplyUnits { get; set; }
+    public virtual ICollection<SupplyUnit> SupplyUnits { get; set; } = [];
 }

@@ -11,11 +11,9 @@ public class Sale
 
     public int CustomerId { get; set; }
 
-    public virtual required Customer Customer { get; set; }
-
     public DateTimeOffset RealDate { get; set; }
 
     public DateTimeOffset PlannedDate { get; set; }
 
-    public required ICollection<SaleUnit> SaleUnits { get; set; }
+    public virtual ICollection<SaleUnit> SaleUnits { get; set; } = [];
 }

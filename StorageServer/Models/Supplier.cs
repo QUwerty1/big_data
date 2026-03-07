@@ -20,10 +20,10 @@ public class Supplier
     [MaxLength(30)]
     public required string Email { get; set; }
 
-    public required virtual ICollection<Supply> Supplies { get; set; }
+    public virtual ICollection<Supply> Supplies { get; set; } = [];
 
     [ForeignKey(nameof(AppUser))]
     public required string AppUserId { get; set; }
 
-    public required AppUser AppUser { get; set; }
+    public virtual AppUser AppUser { get; set; } = null!;
 }

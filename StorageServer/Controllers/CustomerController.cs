@@ -3,111 +3,81 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-using StorageServer.DTO;
+using StorageServer.Dto;
 using StorageServer.Models;
+using StorageServer.Services;
 
-namespace StorageServer.Controllers
+namespace StorageServer.Controllers;
+
+[Route("customer")]
+[ApiController]
+[Authorize]
+public class CustomerController(
+    AppDbContext appDbContext,
+    UserManager<AppUser> userManager,
+    MapperService mapperService
+) : ControllerBase
 {
-    [Route("customer")]
-    [ApiController]
-    [Authorize]
-    public class CustomerController(
-        AppDbContext appDbContext,
-        UserManager<AppUser> userManager
-    ) : ControllerBase
+    [HttpGet("{customer_id}")]
+    public async Task<IActionResult> Get([FromRoute] int customer_id)
     {
-        [HttpGet("{customer_id}")]
-        public async Task<IActionResult> GetCuStomerInfo([FromRoute] int customer_id)
-        {
-            var user = await userManager.FindByNameAsync(User.Identity!.Name!);
+        var user = await userManager.FindByNameAsync(User.Identity!.Name!);
 
-            if (user!.IsStaff == false)
-                return Forbid();
+        if (user!.IsStaff == false)
+            return Forbid();
 
-            var customer = await appDbContext.Customers
-                .FromSqlInterpolated($"SELECT * FROM Customers WHERE id = {customer_id}")
-                .FirstOrDefaultAsync();
+        var customer = await appDbContext.Customers
+            .Where(c => c.Id == customer_id)
+            .Include(c => c.Sales)
+            .FirstOrDefaultAsync();
 
-            if (customer == null)
-                return NotFound();
+        if (customer == null)
+            return NotFound();
 
-            return Ok(new CustomerDTO(
-                customer.CompanyName,
-                customer.Phone,
-                customer.Address,
-                customer.Email,
-                customer.Id,
-                customer.AppUserId
-            ));
-        }
+        return Ok(mapperService.ToDto(customer));
+    }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateCustomer([FromBody] CustomerDTO customerDTO)
-        {
-            var user = await userManager.FindByNameAsync(User.Identity!.Name!);
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] CustomerDto customerDto)
+    {
+        var user = await userManager.FindByNameAsync(User.Identity!.Name!);
 
-            if (await appDbContext.Customers.Where(c => c.AppUserId == user!.Id).AnyAsync())
-                return Conflict("Аккаунт покупателя уже существует");
+        if (await appDbContext.Customers.Where(c => c.AppUserId == user!.Id).AnyAsync())
+            return Conflict("Аккаунт покупателя уже существует");
 
-            var customer = new Customer
-            {
-                CompanyName = customerDTO.CompanyName,
-                Phone = customerDTO.Phone,
-                Address = customerDTO.Address,
-                Email = customerDTO.Email,
-                Sales = [],
-                AppUserId = user!.Id,
-                AppUser = user
-            };
+        await appDbContext.Customers.AddAsync(mapperService.ToEntity(customerDto));
+        await appDbContext.SaveChangesAsync();
 
-            await appDbContext.Customers.AddAsync(customer);
-            await appDbContext.SaveChangesAsync();
+        return Created();
+    }
 
-            return Created();
-        }
+    [HttpGet("me")]
+    public async Task<IActionResult> Get()
+    {
+        var customer = await appDbContext.Customers
+            .Where(c => c.AppUser.UserName == User.Identity!.Name)
+            .Include(c => c.Sales)
+            .FirstOrDefaultAsync();
 
-        [HttpGet]
-        public async Task<IActionResult> Get()
-        {
-            var user = await userManager.FindByNameAsync(User.Identity!.Name!);
+        return customer == null 
+            ? NotFound() 
+            : Ok(mapperService.ToDto(customer));
+    }
 
-            if (user!.Customer == null)
-                return NotFound();
+    [HttpGet]
+    public async Task<IActionResult> GetAll([FromQuery] int? take, [FromQuery] int skip = 0)
+    {
+        var user = await userManager.FindByNameAsync(User.Identity!.Name!);
 
-            var customer = user.Customer;
+        if (user!.IsStaff == false)
+            return Forbid();
 
-            return Ok(new CustomerDTO(
-                customer.CompanyName,
-                customer.Phone,
-                customer.Address,
-                customer.Email
-            ));
-        }
+        var customers = appDbContext.Customers.Skip(skip);
 
-        [HttpGet("all")]
-        public async Task<IActionResult> GetAllAsync([FromQuery] int? take, [FromQuery] int skip = 0)
-        {
-            var user = await userManager.FindByNameAsync(User.Identity!.Name!);
+        if (take != null)
+            customers = customers.Take(take ?? 0);
 
-            if (user!.IsStaff == false)
-                return Forbid();
-
-            var customers = appDbContext.Customers.Skip(skip);
-
-            if (take != null)
-            {
-                customers = customers.Take(take ?? 0);
-            }
-
-            return Ok(customers.Select(c => new CustomerDTO(
-                c.CompanyName,
-                c.Phone,
-                c.Address,
-                c.Email,
-                c.Id,
-                c.AppUserId
-            )));
-        }
+        return Ok(customers.Select(c => mapperService.ToDto(c)));
     }
 }
 

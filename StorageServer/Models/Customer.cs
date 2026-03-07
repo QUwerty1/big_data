@@ -20,8 +20,9 @@ public class Customer
     [MaxLength(30)]
     public required string Email { get; set; }
 
-    public required virtual ICollection<Sale> Sales { get; set; }
+    public virtual ICollection<Sale> Sales { get; set; } = [];
 
     public required string AppUserId { get; set; }
-    public AppUser AppUser { get; set; } = null!;
+
+    public virtual AppUser AppUser { get; set; } = null!;
 }

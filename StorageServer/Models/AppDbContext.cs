@@ -15,16 +15,5 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        modelBuilder.Entity<Customer>(entity =>
-        {
-            entity.HasOne(c => c.AppUser)
-                  .WithOne(u => u.Customer)
-                  .HasForeignKey<Customer>(c => c.AppUserId)
-                  .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasIndex(c => c.AppUserId)
-                  .IsUnique();
-        });
     }
 }
