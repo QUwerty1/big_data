@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,11 +14,14 @@ namespace StorageServer.Controllers;
 [Authorize]
 public class SupplierController(
     AppDbContext appDbContext,
-    MapperService mapperService
+    MapperService mapperService,
+    UserManager<AppUser> userManager
 ) : ControllerBase
 {
     [HttpGet("{supplier_id}")]
     [Authorize(Policy = "IsStaff")]
+    [ProducesResponseType<CustomerDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] int supplier_id)
     {
         var supplier = await appDbContext.Suppliers
@@ -31,9 +35,15 @@ public class SupplierController(
     }
 
     [HttpPost]
-    [Authorize(Policy = "IsStaff")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create([FromBody] SupplierDto supplierDto)
     {
+        var user = await userManager.FindByNameAsync(User.Identity!.Name!);
+
+        if (await appDbContext.Customers.Where(c => c.AppUserId == user!.Id).AnyAsync())
+            return Conflict("Аккаунт покупателя уже существует");
+
         await appDbContext.Suppliers.AddAsync(mapperService.ToEntity(supplierDto));
         await appDbContext.SaveChangesAsync();
 
@@ -41,6 +51,8 @@ public class SupplierController(
     }
 
     [HttpGet("me")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<CustomerDto>(StatusCodes.Status200OK)]
     public async Task<IActionResult> Get()
     {
         var supplier = await appDbContext.Suppliers
@@ -55,6 +67,7 @@ public class SupplierController(
 
     [HttpGet]
     [Authorize(Policy = "IsStaff")]
+    [ProducesResponseType<CustomerDto>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll([FromQuery] int? take, [FromQuery] int skip = 0)
     {
         var suppliers = appDbContext.Suppliers.Skip(skip);

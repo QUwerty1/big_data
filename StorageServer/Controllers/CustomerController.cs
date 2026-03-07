@@ -20,6 +20,8 @@ public class CustomerController(
 {
     [HttpGet("{customer_id}")]
     [Authorize(Policy = "IsStaff")]
+    [ProducesResponseType<CustomerDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] int customer_id)
     {
         var customer = await appDbContext.Customers
@@ -34,6 +36,8 @@ public class CustomerController(
     }
 
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create([FromBody] CustomerDto customerDto)
     {
         var user = await userManager.FindByNameAsync(User.Identity!.Name!);
@@ -48,6 +52,8 @@ public class CustomerController(
     }
 
     [HttpGet("me")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<CustomerDto>(StatusCodes.Status200OK)]
     public async Task<IActionResult> Get()
     {
         var customer = await appDbContext.Customers
@@ -62,6 +68,7 @@ public class CustomerController(
 
     [HttpGet]
     [Authorize(Policy = "IsStaff")]
+    [ProducesResponseType<CustomerDto>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll([FromQuery] int? take, [FromQuery] int skip = 0)
     {
         var customers = appDbContext.Customers.Skip(skip);

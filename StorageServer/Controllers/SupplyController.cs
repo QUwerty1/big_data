@@ -18,6 +18,7 @@ public class SupplyController(
 {
     [HttpGet]
     [Authorize(Policy = "IsStaff")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll()
     {
         return Ok(appDbContext.Supplies
@@ -27,6 +28,8 @@ public class SupplyController(
 
     [HttpGet("{supply_id}")]
     [Authorize(Policy = "IsStaff")]
+    [ProducesResponseType<SaleDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] int supply_id)
     {
         var supply = appDbContext.Supplies
@@ -41,16 +44,19 @@ public class SupplyController(
 
     [HttpPost]
     [Authorize(Policy = "IsStaff")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] SupplyDto supplyDto)
     {
         await appDbContext.AddAsync(mapperService.ToEntity(supplyDto));
         await appDbContext.SaveChangesAsync();
 
-        return Ok();
+        return Created();
     }
 
     [HttpPut]
     [Authorize(Policy = "IsStaff")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update([FromBody] SupplyDto supplyDto)
     {
         var supply = await appDbContext.Supplies

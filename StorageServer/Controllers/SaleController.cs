@@ -18,6 +18,7 @@ public class SaleController(
 {
     [HttpGet]
     [Authorize(Policy = "IsStaff")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll()
     {
         return Ok(appDbContext.Sales.Include(su => su.SaleUnits).Select(mapperService.ToDto));
@@ -25,6 +26,8 @@ public class SaleController(
 
     [HttpGet("{sale_id}")]
     [Authorize(Policy = "IsStaff")]
+    [ProducesResponseType<SaleDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get([FromRoute] int sale_id)
     {
         var sale = appDbContext.Sales
@@ -40,16 +43,19 @@ public class SaleController(
 
     [HttpPost]
     [Authorize(Policy = "IsStaff")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] SaleDto saleDto)
     {
         await appDbContext.AddAsync(mapperService.ToEntity(saleDto));
         await appDbContext.SaveChangesAsync();
 
-        return Ok();
+        return Created();
     }
 
     [HttpPut]
     [Authorize(Policy = "IsStaff")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update([FromBody] SaleDto saleDto)
     {
         var sale = await appDbContext.Sales
