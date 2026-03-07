@@ -70,19 +70,23 @@ public class SupplyController(
         if (user!.IsStaff == false)
             return Forbid();
 
-        var oldSupply = await appDbContext.Sales
+        var supply = await appDbContext.Supplies
             .Where(s => s.Id == supplyDto.Id)
-            .Include(s => s.SaleUnits)
+            .Include(s => s.SupplyUnits)
             .FirstOrDefaultAsync();
 
-        if (oldSupply == null)
+        if (supply == null)
             return NotFound();
 
-        appDbContext.RemoveRange(oldSupply.SaleUnits);
+        appDbContext.RemoveRange(supply.SupplyUnits);
         
-        var newSupply = mapperService.ToEntity(supplyDto);
+        var newSupplyUnits = supplyDto.SupplyUnits.Select(mapperService.ToEntity).ToArray();
 
-        appDbContext.Update(newSupply);
+        supply.SupplierId = supplyDto.SupplierId;
+        supply.PlannedDate = supplyDto.PlannedDate;
+        supply.RealDate = supplyDto.RealDate;
+        supply.SupplyUnits = newSupplyUnits;
+        
         await appDbContext.SaveChangesAsync();
 
         return Ok();

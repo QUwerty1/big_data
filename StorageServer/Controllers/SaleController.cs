@@ -70,19 +70,23 @@ public class SaleController(
         if (user!.IsStaff == false)
             return Forbid();
 
-        var oldSale = await appDbContext.Sales
+        var sale = await appDbContext.Sales
             .Where(s => s.Id == saleDto.Id)
             .Include(s => s.SaleUnits)
             .FirstOrDefaultAsync();
 
-        if (oldSale == null)
+        if (sale == null)
             return NotFound();
 
-        appDbContext.RemoveRange(oldSale.SaleUnits);
+        appDbContext.RemoveRange(sale.SaleUnits);
         
-        var newSale = mapperService.ToEntity(saleDto);
+        var newSaleUnits = saleDto.SaleUnits.Select(mapperService.ToEntity).ToArray();
 
-        appDbContext.Update(newSale);
+        sale.CustomerId = saleDto.CustomerId;
+        sale.RealDate = saleDto.RealDate;
+        sale.PlannedDate = saleDto.PlannedDate;
+        sale.SaleUnits = newSaleUnits;
+
         await appDbContext.SaveChangesAsync();
 
         return Ok();
