@@ -1,26 +1,44 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Authentication;
 using System.Security.Claims;
 using System.Text;
 
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
-namespace StorageServer.Controllers;
+using StorageServer.Models;
 
-public class TokenService(IConfiguration configuration)
+namespace StorageServer.Services;
+
+public class TokenService(
+    IConfiguration configuration,
+    UserManager<AppUser> userManager
+)
 {
-    private readonly IConfiguration _configuration = configuration;
     private readonly JwtSecurityTokenHandler _tokenHandler = new();
 
-    public string GenerateToken(string username)
+    public async Task<string> GenerateTokenAsync(string username)
     {
+        var user = await userManager.FindByNameAsync(username);
+
+        if (user == null)
+            throw new AuthenticationException($"Пользователь с именем {username} не найден");
+
+        var userClaims = new ClaimsIdentity([
+            new Claim(ClaimTypes.Name, username),
+        ]);
+        
+        if (user.IsStaff)
+            userClaims.AddClaim(new Claim(ClaimTypes.Role, "Staff"));
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity([new Claim(ClaimTypes.Name, username)]),
-            Issuer = _configuration["Jwt:Issuer"],
-            Audience = _configuration["Jwt:Audience"],
+            Subject = userClaims,
+            Issuer = configuration["Jwt:Issuer"],
+            Audience = configuration["Jwt:Audience"],
             Expires = DateTime.UtcNow + TimeSpan.FromHours(24),
             SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]!)),
+                new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration["Jwt:Key"]!)),
                 SecurityAlgorithms.HmacSha256Signature)
         };
 

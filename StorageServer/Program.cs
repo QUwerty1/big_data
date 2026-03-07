@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,7 +9,6 @@ using Microsoft.OpenApi;
 
 using Scalar.AspNetCore;
 
-using StorageServer.Controllers;
 using StorageServer.Models;
 using StorageServer.Services;
 
@@ -55,7 +55,13 @@ builder.Services
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("IsStaff", policy =>
+    {
+        policy.RequireClaim(ClaimTypes.Role, "Staff");
+    });
+});
 
 builder.Services.AddOpenApi(options =>
 {
@@ -78,7 +84,7 @@ builder.Services.AddOpenApi(options =>
     });
 });
 
-builder.Services.AddSingleton<TokenService>();
+builder.Services.AddScoped<TokenService>();
 builder.Services.AddSingleton<MapperService>();
 
 var app = builder.Build();

@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,60 +6,51 @@ using StorageServer.Dto;
 using StorageServer.Models;
 using StorageServer.Services;
 
-namespace StorageServer.Controllers
+namespace StorageServer.Controllers;
+
+[Authorize]
+[Route("product")]
+[ApiController]
+public class ProductController(
+    AppDbContext appDbContext,
+    MapperService mapperService
+) : ControllerBase
 {
-    [Route("product")]
-    [ApiController]
-    public class ProductController(
-        AppDbContext appDbContext,
-        UserManager<AppUser> userManager,
-        MapperService mapperService
-    ) : ControllerBase
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
     {
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            return Ok(appDbContext.Products.Select(p => mapperService.ToDto(p)));
-        }
+        return Ok(appDbContext.Products.Select(p => mapperService.ToDto(p)));
+    }
 
-        [HttpGet("{product_id}")]
-        public async Task<IActionResult> Get([FromRoute] int product_id)
-        {
-            var product = await appDbContext.Products
-                .Where(p => p.Id == product_id)
-                .FirstOrDefaultAsync();
+    [HttpGet("{product_id}")]
+    public async Task<IActionResult> Get([FromRoute] int product_id)
+    {
+        var product = await appDbContext.Products
+            .Where(p => p.Id == product_id)
+            .FirstOrDefaultAsync();
 
-            return product != null 
-                ? Ok(mapperService.ToDto(product)) 
-                : NotFound();
-        }
+        return product != null 
+            ? Ok(mapperService.ToDto(product)) 
+            : NotFound();
+    }
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ProductDto productDto)
-        {
-            var user = await userManager.FindByNameAsync(User.Identity!.Name!);
+    [HttpPost]
+    [Authorize(Policy = "IsStaff")]
+    public async Task<IActionResult> Create([FromBody] ProductDto productDto)
+    {
+        await appDbContext.AddAsync(mapperService.ToEntity(productDto));
+        await appDbContext.SaveChangesAsync();
 
-            if (user!.IsStaff == false)
-                return Forbid();
+        return Created();
+    }
 
-            await appDbContext.AddAsync(mapperService.ToEntity(productDto));
-            await appDbContext.SaveChangesAsync();
+    [HttpPut]
+    [Authorize(Policy = "IsStaff")]
+    public async Task<IActionResult> Update([FromBody] ProductDto productDto)
+    {
+        appDbContext.Update(mapperService.ToEntity(productDto));
+        await appDbContext.SaveChangesAsync();
 
-            return Created();
-        }
-
-        [HttpPut]
-        public async Task<IActionResult> Update([FromBody] ProductDto productDto)
-        {
-            var user = await userManager.FindByNameAsync(User.Identity!.Name!);
-
-            if (user!.IsStaff == false)
-                return Forbid();
-
-            appDbContext.Update(mapperService.ToEntity(productDto));
-            await appDbContext.SaveChangesAsync();
-
-            return Ok();
-        }
+        return Ok();
     }
 }

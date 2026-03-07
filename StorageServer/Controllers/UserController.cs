@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 using StorageServer.Models;
+using StorageServer.Services;
 
 namespace StorageServer.Controllers;
 
@@ -31,7 +32,7 @@ public class UserController(
 
         if (signResult)
         {
-            var token = tokenService.GenerateToken(loginBody.UserName);
+            var token = await tokenService.GenerateTokenAsync(loginBody.UserName);
             return Ok(token);
         }
 

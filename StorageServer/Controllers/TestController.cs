@@ -19,4 +19,11 @@ public class TestController : ControllerBase
     {
         return Ok("Success");
     }
+
+    [Authorize(Policy = "IsStaff")]
+    [HttpGet("staff")]
+    public IActionResult StaffOnlyMethod()
+    {
+        return Ok("Success");
+    }
 }

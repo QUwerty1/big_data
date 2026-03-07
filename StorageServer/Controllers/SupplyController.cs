@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,31 +12,23 @@ namespace StorageServer.Controllers;
 [ApiController]
 [Authorize]
 public class SupplyController(
-    UserManager<AppUser> userManager,
     AppDbContext appDbContext,
     MapperService mapperService
 ) : ControllerBase
 {
     [HttpGet]
+    [Authorize(Policy = "IsStaff")]
     public async Task<IActionResult> GetAll()
     {
-        var user = await userManager.FindByNameAsync(User.Identity!.Name!);
-
-        return user!.IsStaff == false 
-            ? Forbid() 
-            : Ok(appDbContext.Supplies
-                .Include(s => s.SupplyUnits)
-                .Select(mapperService.ToDto));
+        return Ok(appDbContext.Supplies
+            .Include(s => s.SupplyUnits)
+            .Select(mapperService.ToDto));
     }
 
     [HttpGet("{supply_id}")]
+    [Authorize(Policy = "IsStaff")]
     public async Task<IActionResult> Get([FromRoute] int supply_id)
     {
-        var user = await userManager.FindByNameAsync(User.Identity!.Name!);
-
-        if (user!.IsStaff == false)
-            return Forbid();
-
         var supply = appDbContext.Supplies
             .Where(s => s.Id == supply_id)
             .Include(s => s.SupplyUnits)
@@ -49,13 +40,9 @@ public class SupplyController(
     }
 
     [HttpPost]
+    [Authorize(Policy = "IsStaff")]
     public async Task<IActionResult> Create([FromBody] SupplyDto supplyDto)
     {
-        var user = await userManager.FindByNameAsync(User.Identity!.Name!);
-
-        if (user!.IsStaff == false)
-            return Forbid();
-
         await appDbContext.AddAsync(mapperService.ToEntity(supplyDto));
         await appDbContext.SaveChangesAsync();
 
@@ -63,13 +50,9 @@ public class SupplyController(
     }
 
     [HttpPut]
+    [Authorize(Policy = "IsStaff")]
     public async Task<IActionResult> Update([FromBody] SupplyDto supplyDto)
     {
-        var user = await userManager.FindByNameAsync(User.Identity!.Name!);
-
-        if (user!.IsStaff == false)
-            return Forbid();
-
         var supply = await appDbContext.Supplies
             .Where(s => s.Id == supplyDto.Id)
             .Include(s => s.SupplyUnits)

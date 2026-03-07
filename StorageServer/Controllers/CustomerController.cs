@@ -19,13 +19,9 @@ public class CustomerController(
 ) : ControllerBase
 {
     [HttpGet("{customer_id}")]
+    [Authorize(Policy = "IsStaff")]
     public async Task<IActionResult> Get([FromRoute] int customer_id)
     {
-        var user = await userManager.FindByNameAsync(User.Identity!.Name!);
-
-        if (user!.IsStaff == false)
-            return Forbid();
-
         var customer = await appDbContext.Customers
             .Where(c => c.Id == customer_id)
             .Include(c => c.Sales)
@@ -65,13 +61,9 @@ public class CustomerController(
     }
 
     [HttpGet]
+    [Authorize(Policy = "IsStaff")]
     public async Task<IActionResult> GetAll([FromQuery] int? take, [FromQuery] int skip = 0)
     {
-        var user = await userManager.FindByNameAsync(User.Identity!.Name!);
-
-        if (user!.IsStaff == false)
-            return Forbid();
-
         var customers = appDbContext.Customers.Skip(skip);
 
         if (take != null)

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,18 +13,13 @@ namespace StorageServer.Controllers;
 [Authorize]
 public class SupplierController(
     AppDbContext appDbContext,
-    UserManager<AppUser> userManager,
     MapperService mapperService
 ) : ControllerBase
 {
     [HttpGet("{supplier_id}")]
+    [Authorize(Policy = "IsStaff")]
     public async Task<IActionResult> Get([FromRoute] int supplier_id)
     {
-        var user = await userManager.FindByNameAsync(User.Identity!.Name!);
-
-        if (user!.IsStaff == false)
-            return Forbid();
-
         var supplier = await appDbContext.Suppliers
             .Where(s => s.Id == supplier_id)
             .Include(s => s.Supplies)
@@ -37,13 +31,9 @@ public class SupplierController(
     }
 
     [HttpPost]
+    [Authorize(Policy = "IsStaff")]
     public async Task<IActionResult> Create([FromBody] SupplierDto supplierDto)
     {
-        var user = await userManager.FindByNameAsync(User.Identity!.Name!);
-
-        if (await appDbContext.Suppliers.Where(c => c.AppUserId == user!.Id).AnyAsync())
-            return Conflict("Аккаунт покупателя уже существует");
-
         await appDbContext.Suppliers.AddAsync(mapperService.ToEntity(supplierDto));
         await appDbContext.SaveChangesAsync();
 
@@ -64,13 +54,9 @@ public class SupplierController(
     }
 
     [HttpGet]
+    [Authorize(Policy = "IsStaff")]
     public async Task<IActionResult> GetAll([FromQuery] int? take, [FromQuery] int skip = 0)
     {
-        var user = await userManager.FindByNameAsync(User.Identity!.Name!);
-
-        if (user!.IsStaff == false)
-            return Forbid();
-
         var suppliers = appDbContext.Suppliers.Skip(skip);
 
         if (take != null)
