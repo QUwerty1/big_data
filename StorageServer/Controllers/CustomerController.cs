@@ -38,16 +38,23 @@ public class CustomerController(
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Create([FromBody] CustomerDto customerDto)
+    public async Task<IActionResult> Create([FromBody] NewCustomer newCustomer)
     {
         var user = await userManager.FindByNameAsync(User.Identity!.Name!);
-
-        customerDto.AppUserId = user!.Id;
 
         if (await appDbContext.Customers.Where(c => c.AppUserId == user!.Id).AnyAsync())
             return Conflict("Аккаунт покупателя уже существует");
 
-        await appDbContext.Customers.AddAsync(mapperService.ToEntity(customerDto));
+        var customer = new Customer
+        {
+            AppUserId = user!.Id,
+            CompanyName = newCustomer.CompanyName,
+            Address = newCustomer.Address,
+            Phone = newCustomer.Phone,
+            Email = newCustomer.Email
+        };
+
+        await appDbContext.Customers.AddAsync(customer);
         await appDbContext.SaveChangesAsync();
 
         return Created();
@@ -84,3 +91,9 @@ public class CustomerController(
     }
 }
 
+public record NewCustomer(
+    string CompanyName,
+    string Phone,
+    string Address,
+    string Email
+);

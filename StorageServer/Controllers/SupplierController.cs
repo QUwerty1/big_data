@@ -37,14 +37,23 @@ public class SupplierController(
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Create([FromBody] SupplierDto supplierDto)
+    public async Task<IActionResult> Create([FromBody] NewSupplier newSupplier)
     {
         var user = await userManager.FindByNameAsync(User.Identity!.Name!);
 
         if (await appDbContext.Customers.Where(c => c.AppUserId == user!.Id).AnyAsync())
             return Conflict("Аккаунт покупателя уже существует");
 
-        await appDbContext.Suppliers.AddAsync(mapperService.ToEntity(supplierDto));
+        var supplier = new Supplier
+        {
+            AppUserId = user!.Id,
+            Phone = newSupplier.Phone,
+            Email = newSupplier.Email,
+            Address = newSupplier.Address,
+            CompanyName = newSupplier.CompanyName
+        };
+
+        await appDbContext.Suppliers.AddAsync(supplier);
         await appDbContext.SaveChangesAsync();
 
         return Created();
@@ -80,3 +89,10 @@ public class SupplierController(
             .Select(mapperService.ToDto));
     }
 }
+
+public record NewSupplier(
+    string CompanyName,
+    string Phone,
+    string Address,
+    string Email
+);
