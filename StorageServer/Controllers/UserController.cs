@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 using StorageServer.Models;
 using StorageServer.Services;
@@ -12,7 +13,8 @@ namespace StorageServer.Controllers;
 public class UserController(
     TokenService tokenService,
     UserManager<AppUser> userManager,
-    ILogger<UserController> logger
+    ILogger<UserController> logger,
+    AppDbContext appDbContext
 ) : ControllerBase
 {
 
@@ -64,17 +66,38 @@ public class UserController(
         return Unauthorized();
     }
 
-    [HttpGet("is_staff")]
+    [HttpGet("me")]
     [Authorize]
-    public async Task<bool> IsStaff()
+    public async Task<IActionResult> GetMe()
     {
-        var user = await userManager.FindByNameAsync(User.Identity!.Name!);
+        var user = await appDbContext.Users
+            .Where(u => u.NormalizedUserName == User.Identity!.Name!.Normalize())
+            .Include(u => u.Customer)
+            .Include(u => u.Supplier)
+            .FirstAsync();
 
-        return user!.IsStaff;
+        var userInfo = new UserInfo(
+            user.Id,
+            user.UserName!,
+            user.IsStaff,
+            user.Customer != null,
+            user.Supplier != null
+        );
+
+        return Ok(userInfo);
     }
 }
 
 public record LoginBody(
     string UserName,
     string Password
+);
+
+public record UserInfo
+(
+    string Id,
+    string UserName,
+    bool IsStaff,
+    bool IsCustomer,
+    bool IsSupplier
 );

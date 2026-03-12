@@ -1,102 +1,90 @@
+# commands/auth.py
 import typer
-import click
-from typing import Optional
-
-from client import ApiClient, ApiError
+from client import ApiClient, save_token_to_file, clear_token_file
+from dto import LoginBody
+from rich.table import Table
+from rich.console import Console
 
 app = typer.Typer(help="Authentication commands")
+console = Console()
 
+def print_user_table(data):
+    """Display user data in a formatted table."""
+    table = Table(title="User Details")
+    table.add_column("Field", style="cyan")
+    table.add_column("Value", style="magenta")
+    
+    if isinstance(data, dict):
+        for k, v in data.items():
+            table.add_row(str(k), str(v))
+    else:
+        table.add_row("User", str(data))
+    
+    console.print(table)
 
-def _get_client() -> ApiClient:
-    """✅ Get ApiClient from context or create new one"""
-    try:
-        ctx = click.get_current_context()
-        if ctx.obj is not None:
-            return ctx.obj
-    except (RuntimeError, AttributeError):
-        pass
-    return ApiClient()
-
-
-@app.command()
+@app.command("login")
 def login(
-    username: Optional[str] = typer.Argument(None, help="Username"),
-    password: Optional[str] = typer.Option(None, "--password", "-p", 
-                                          help="Password (will prompt if not provided)"),
+    user_name: str = typer.Option(None, "--user-name", "-u", help="Username"),
+    password: str = typer.Option(None, "--password", "-p", help="Password"),
+    save: bool = typer.Option(False, "--save", "-s", help="Save token to file")
 ):
-    """Login to the API and get JWT token"""
-    client = _get_client()
-    
-    try:
-        if not username:
-            username = typer.prompt("Username")
-        
-        if not password:
-            password = typer.prompt("Password", hide_input=True)
-        
-        # ✅ Type narrowing - tell Pylance these are definitely str
-        assert username is not None
-        assert password is not None
-        
-        token = client.login(username, password)
-        typer.echo(f"✓ Successfully logged in as {username}")
-        typer.echo(f"Token saved to file")
-    except ApiError as e:
-        typer.echo(f"✗ Login failed: {e}", err=True)
-        raise typer.Exit(1)
+    """Login and retrieve JWT token."""
+    # Interactive mode if flags not provided
+    if not user_name:
+        user_name = typer.prompt("Username")
+    if not password:
+        password = typer.prompt("Password", hide_input=True)
 
-
-@app.command()
-def logout():
-    """Logout and clear saved token"""
-    client = _get_client()
-    
+    client = ApiClient()
+    body = LoginBody(userName=user_name, password=password).model_dump()
     try:
-        client.logout()
-        typer.echo("✓ Successfully logged out")
+        token = client.post("/user/login", json=body)
+        typer.echo(f"Token: {token}")
+        if save:
+            save_token_to_file(token)
+            typer.echo("✓ Token saved to .cli_token")
     except Exception as e:
         typer.echo(f"✗ Error: {e}", err=True)
-        raise typer.Exit(1)
+        raise typer.Exit(code=1)
 
-
-@app.command()
+@app.command("register")
 def register(
-    username: Optional[str] = typer.Argument(None, help="Username"),
-    password: Optional[str] = typer.Option(None, "--password", "-p", 
-                                          help="Password (will prompt if not provided)"),
+    user_name: str = typer.Option(None, "--user-name", "-u", help="Username"),
+    password: str = typer.Option(None, "--password", "-p", help="Password")
 ):
-    """Register a new user"""
-    client = _get_client()
-    
-    try:
-        if not username:
-            username = typer.prompt("Username")
-        
-        if not password:
-            password = typer.prompt("Password", hide_input=True)
-        
-        # ✅ Type narrowing - tell Pylance these are definitely str
-        assert username is not None
-        assert password is not None
-        
-        client.register(username, password)
-        typer.echo(f"✓ Successfully registered user {username}")
-    except ApiError as e:
-        typer.echo(f"✗ Registration failed: {e}", err=True)
-        raise typer.Exit(1)
+    """Register a new user."""
+    # Interactive mode if flags not provided
+    if not user_name:
+        user_name = typer.prompt("Username")
+    if not password:
+        password = typer.prompt("Password", hide_input=True)
+        password_confirm = typer.prompt("Confirm Password", hide_input=True)
+        if password != password_confirm:
+            typer.echo("✗ Passwords do not match!", err=True)
+            raise typer.Exit(code=1)
 
-
-@app.command()
-def staff():
-    """✅ Check if current user is staff"""
-    client = _get_client()
-    
+    client = ApiClient()
+    body = LoginBody(userName=user_name, password=password).model_dump()
     try:
-        is_staff = client.is_staff()
-        if is_staff:
-            typer.echo("✓ Current user is staff")
-        else:
-            typer.echo("✗ Current user is not staff")
-    except ApiError as e:
-        typer.echo(f"✗ Failed to check staff status: {e}", err=True)
-        raise typer.Exit(1)
+        client.post("/user/register", json=body)
+        typer.echo("✓ User registered successfully.")
+    except Exception as e:
+        typer.echo(f"✗ Error: {e}", err=True)
+        raise typer.Exit(code=1)
+
+@app.command("logout")
+def logout():
+    """Clear saved token."""
+    clear_token_file()
+    typer.echo("✓ Logged out (token file removed).")
+
+@app.command("me")
+def me(token: str = typer.Option(None, "--token", "-t", help="JWT Token")):
+    """Get current user details."""
+    client = ApiClient(token=token)
+    try:
+        data = client.get("/user/me")
+        print_user_table(data)
+    except Exception as e:
+        typer.echo(f"✗ Error: {e}", err=True)
+        raise typer.Exit(code=1)

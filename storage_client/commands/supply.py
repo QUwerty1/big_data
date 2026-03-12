@@ -1,176 +1,174 @@
+# commands/supply.py
 import typer
-from typing import Optional, List
-from rich.console import Console
+import rich
+from typing import Any, Dict, Optional
+from client import ApiClient
 from rich.table import Table
-from datetime import datetime
-
-from client import ApiClient, ApiError
-from dto import SupplyDto, SupplyUnitDto
+from rich.console import Console
 
 app = typer.Typer(help="Supply commands")
 console = Console()
 
+# commands/supply.py
+from config import format_price  # Add this import at the top
 
-def display_supply(supply: SupplyDto):
-    """Display a single supply"""
-    table = Table(title=f"Supply #{supply.id}")
-    table.add_column("Property", style="cyan")
-    table.add_column("Value", style="green")
-    
-    table.add_row("ID", str(supply.id) if supply.id else "N/A")
-    table.add_row("Supplier ID", str(supply.supplierId) if supply.supplierId else "N/A")
-    
-    if supply.realDate:
-        table.add_row("Real Date", supply.realDate.strftime("%Y-%m-%d %H:%M:%S"))
-    if supply.plannedDate:
-        table.add_row("Planned Date", supply.plannedDate.strftime("%Y-%m-%d %H:%M:%S"))
-    
-    if supply.supplyUnits:
-        table.add_row("Units Count", str(len(supply.supplyUnits)))
-        
-        # Show units in a sub-table
-        units_table = Table(title="Supply Units")
-        units_table.add_column("ID", style="cyan")
-        units_table.add_column("Product ID", style="blue")
-        units_table.add_column("Amount", style="yellow")
-        units_table.add_column("Price", style="green")
-        
-        for unit in supply.supplyUnits:
-            units_table.add_row(
-                str(unit.id),
-                str(unit.productId),
-                str(unit.amount),
-                f"${unit.price:.2f}"
+def print_supply_table(data):
+    if isinstance(data, list):
+        table = Table(title="Supplies")
+        table.add_column("ID", style="cyan")
+        table.add_column("Supplier ID", style="magenta")
+        table.add_column("Planned Date")
+        table.add_column("Real Date")
+        table.add_column("Total", style="green", justify="right")
+        for item in data:
+            total = 0
+            if 'supplyUnits' in item and item['supplyUnits']:
+                total = sum(unit.get('price', 0) * unit.get('amount', 0) for unit in item['supplyUnits'])
+            table.add_row(
+                str(item.get('id', 'N/A')),
+                str(item.get('supplierId', 'N/A')),
+                str(item.get('plannedDate', '-'))[:10] if item.get('plannedDate') else '-',
+                str(item.get('realDate', '-'))[:10] if item.get('realDate') else '-',
+                format_price(total)
             )
+        console.print(table)
+    else:
+        # Main supply details table
+        table = Table(title="Supply Details")
+        table.add_column("Field", style="cyan")
+        table.add_column("Value", style="magenta")
+        for k, v in data.items():
+            if k == 'supplyUnits' and isinstance(v, list):
+                continue  # Skip supplyUnits, will show in separate table
+            elif 'price' in k.lower() and isinstance(v, (int, float)):
+                table.add_row(k, format_price(v))
+            elif 'date' in k.lower() and v:
+                table.add_row(k, str(v)[:10])
+            else:
+                table.add_row(k, str(v))
+        console.print(table)
         
-        console.print(units_table)
-    
-    console.print(table)
-
-
-def display_supplies(supplies: List[SupplyDto]):
-    """Display a list of supplies"""
-    if not supplies:
-        console.print("[yellow]No supplies found[/yellow]")
-        return
-    
-    table = Table(title="Supplies")
-    table.add_column("ID", style="cyan", justify="right")
-    table.add_column("Supplier ID", style="blue", justify="right")
-    table.add_column("Real Date", style="green")
-    table.add_column("Planned Date", style="yellow")
-    table.add_column("Units", style="magenta", justify="right")
-    
-    for supply in supplies:
-        table.add_row(
-            str(supply.id) if supply.id else "N/A",
-            str(supply.supplierId) if supply.supplierId else "N/A",
-            supply.realDate.strftime("%Y-%m-%d") if supply.realDate else "N/A",
-            supply.plannedDate.strftime("%Y-%m-%d") if supply.plannedDate else "N/A",
-            str(len(supply.supplyUnits)) if supply.supplyUnits else "0"
-        )
-    
-    console.print(table)
-
+        # Second table: Supply Units
+        if 'supplyUnits' in data and data['supplyUnits']:
+            units_table = Table(title="Supply Units", box=rich.box.DOUBLE_EDGE) # type: ignore
+            units_table.add_column("ID", style="cyan", justify="right")
+            units_table.add_column("Product ID", style="magenta", justify="right")
+            units_table.add_column("Amount", justify="right")
+            units_table.add_column("Price", style="green", justify="right")
+            units_table.add_column("Total", style="green", justify="right")
+            
+            grand_total = 0
+            for unit in data['supplyUnits']:
+                unit_total = unit.get('price', 0) * unit.get('amount', 0)
+                grand_total += unit_total
+                units_table.add_row(
+                    str(unit.get('id', 'N/A')),
+                    str(unit.get('productId', 'N/A')),
+                    str(unit.get('amount', 0)),
+                    format_price(unit.get('price', 0)),
+                    format_price(unit_total)
+                )
+            
+            # Add total row
+            units_table.add_row(
+                "", "", "", "Grand Total:", format_price(grand_total),
+                style="bold"
+            )
+            
+            console.print()  # Empty line between tables
+            console.print(units_table)
 
 @app.command("get")
 def get_supply(
-    ctx: typer.Context,
-    supply_id: int = typer.Argument(..., help="Supply ID"),
+    supply_id: int = typer.Argument(None, help="Supply ID"),
+    token: str = typer.Option(None, "--token", "-t")
 ):
-    """Get supply by ID"""
-    if ctx.obj is None:
-        ctx.obj = ApiClient()
-    client = ctx.obj
-    
+    if supply_id is None:
+        supply_id = int(typer.prompt("Supply ID"))
+    client = ApiClient(token=token)
     try:
-        supply = client.get_supply(supply_id)
-        display_supply(supply)
-    except ApiError as e:
-        console.print(f"[red]✗ Failed to get supply: {e}[/red]")
-        raise typer.Exit(1)
+        data = client.get(f"/supply/{supply_id}")
+        print_supply_table(data)
     except Exception as e:
-        console.print(f"[red]✗ Error: {e}[/red]")
-        raise typer.Exit(1)
-
+        typer.echo(f"Error: {e}", err=True)
+        raise typer.Exit(code=1)
 
 @app.command("get-all")
-def get_all_supplies(
-    ctx: typer.Context,
-):
-    """Get all supplies"""
-    if ctx.obj is None:
-        ctx.obj = ApiClient()
-    client = ctx.obj
-    
+def get_all_supplies(token: str = typer.Option(None, "--token", "-t")):
+    client = ApiClient(token=token)
     try:
-        supplies = client.get_all_supplies()
-        display_supplies(supplies)
-    except ApiError as e:
-        console.print(f"[red]✗ Failed to get supplies: {e}[/red]")
-        raise typer.Exit(1)
+        data = client.get("/supply")
+        print_supply_table(data)
     except Exception as e:
-        console.print(f"[red]✗ Error: {e}[/red]")
-        raise typer.Exit(1)
-
+        typer.echo(f"Error: {e}", err=True)
+        raise typer.Exit(code=1)
 
 @app.command("create")
 def create_supply(
-    ctx: typer.Context,
-    supplier_id: Optional[int] = typer.Option(None, "--supplier-id", "-s", help="Supplier ID"),
-    real_date: Optional[str] = typer.Option(None, "--real-date", "-r", help="Real date (YYYY-MM-DD HH:MM:SS)"),
-    planned_date: Optional[str] = typer.Option(None, "--planned-date", "-p", help="Planned date (YYYY-MM-DD HH:MM:SS)"),
+    supplier_id: int = typer.Option(None, "--supplier-id", "-s"),
+    planned_date: str = typer.Option(None, "--planned-date", "-d"),
+    real_date: str = typer.Option(None, "--real-date", "-r"),
+    token: str = typer.Option(None, "--token", "-t")
 ):
-    """Create a new supply"""
-    if ctx.obj is None:
-        ctx.obj = ApiClient()
-    client = ctx.obj
+    if supplier_id is None:
+        supplier_id = int(typer.prompt("Supplier ID"))
+    if not planned_date:
+        planned_date = typer.prompt("Planned Date (YYYY-MM-DD)", default="")
+    if not real_date:
+        real_date = typer.prompt("Real Date (YYYY-MM-DD)", default="")
+    
+    client = ApiClient(token=token)
+    # Fix: Explicitly type the dictionary
+    body: Dict[str, Any] = {
+        "supplierId": supplier_id,
+        "plannedDate": planned_date if planned_date else None,
+        "realDate": real_date if real_date else None
+    }
+    body = {k: v for k, v in body.items() if v is not None}
     
     try:
-        supply = SupplyDto(
-            supplierId=supplier_id,
-            realDate=datetime.strptime(real_date, "%Y-%m-%d %H:%M:%S") if real_date else None,
-            plannedDate=datetime.strptime(planned_date, "%Y-%m-%d %H:%M:%S") if planned_date else None,
-            supplyUnits=[]
-        )
-        client.create_supply(supply)
-        console.print("[green]✓ Supply created successfully[/green]")
-    except ApiError as e:
-        console.print(f"[red]✗ Failed to create supply: {e}[/red]")
-        raise typer.Exit(1)
+        data = client.post("/supply", json=body)
+        typer.echo("Supply created successfully.")
+        print_supply_table(data)
     except Exception as e:
-        console.print(f"[red]✗ Error: {e}[/red]")
-        raise typer.Exit(1)
-
-
+        typer.echo(f"Error: {e}", err=True)
+        raise typer.Exit(code=1)
+    
 @app.command("update")
 def update_supply(
-    ctx: typer.Context,
-    supply_id: int = typer.Option(..., "--id", "-i", help="Supply ID"),
-    supplier_id: Optional[int] = typer.Option(None, "--supplier-id", "-s", help="Supplier ID"),
-    real_date: Optional[str] = typer.Option(None, "--real-date", "-r", help="Real date (YYYY-MM-DD HH:MM:SS)"),
-    planned_date: Optional[str] = typer.Option(None, "--planned-date", "-p", help="Planned date (YYYY-MM-DD HH:MM:SS)"),
+    supply_id: int = typer.Argument(None, help="Supply ID"),
+    supplier_id: int = typer.Option(None, "--supplier-id", "-s"),
+    planned_date: str = typer.Option(None, "--planned-date", "-d"),
+    real_date: str = typer.Option(None, "--real-date", "-r"),
+    token: str = typer.Option(None, "--token", "-t")
 ):
-    """Update an existing supply"""
-    if ctx.obj is None:
-        ctx.obj = ApiClient()
-    client = ctx.obj
+    """Update an existing supply."""
+    if supply_id is None:
+        supply_id = int(typer.prompt("Supply ID"))
+    if supplier_id is None:
+        supplier_id = int(typer.prompt("Supplier ID"))
+    if not planned_date:
+        planned_date = typer.prompt("Planned Date (YYYY-MM-DD)", default="")
+    if not real_date:
+        real_date = typer.prompt("Real Date (YYYY-MM-DD)", default="")
+    
+    client = ApiClient(token=token)
+    body: Dict[str, Any] = {
+        "id": supply_id,
+        "supplierId": supplier_id,
+        "plannedDate": planned_date if planned_date else None,
+        "realDate": real_date if real_date else None
+    }
+    # Remove None values to match API expectations
+    body = {k: v for k, v in body.items() if v is not None}
     
     try:
-        existing = client.get_supply(supply_id)
-        
-        if supplier_id:
-            existing.supplierId = supplier_id
-        if real_date:
-            existing.realDate = datetime.strptime(real_date, "%Y-%m-%d %H:%M:%S")
-        if planned_date:
-            existing.plannedDate = datetime.strptime(planned_date, "%Y-%m-%d %H:%M:%S")
-        
-        client.update_supply(existing)
-        console.print("[green]✓ Supply updated successfully[/green]")
-    except ApiError as e:
-        console.print(f"[red]✗ Failed to update supply: {e}[/red]")
-        raise typer.Exit(1)
+        data = client.put("/supply", json=body)
+        typer.echo("✓ Supply updated successfully.")
+        if data:
+            print_supply_table(data)
+        else:
+            typer.echo(f"Supply ID {supply_id} has been updated.")
     except Exception as e:
-        console.print(f"[red]✗ Error: {e}[/red]")
-        raise typer.Exit(1)
+        typer.echo(f"✗ Error: {e}", err=True)
+        raise typer.Exit(code=1)

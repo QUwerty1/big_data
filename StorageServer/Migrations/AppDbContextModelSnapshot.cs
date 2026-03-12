@@ -89,7 +89,7 @@ namespace StorageServer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AppUser");
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("StorageServer.Models.Customer", b =>

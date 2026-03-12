@@ -11,6 +11,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Supplier> Suppliers { get; set; }
     public DbSet<Supply> Supplies { get; set; }
     public DbSet<SupplyUnit> SupplyUnits { get; set; }
+    public DbSet<AppUser> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -60,7 +60,7 @@ public class GeneratorController(
     public async Task<IActionResult> GenerateProductsInRange(
         [FromQuery] int count = 1,
         [FromQuery] decimal minPrice = 1,
-        [FromQuery] decimal maxPrice = 1_000_000
+        [FromQuery] decimal maxPrice = 50_000
     )
     {
         if (count < 1 || minPrice < 0 || maxPrice < minPrice)

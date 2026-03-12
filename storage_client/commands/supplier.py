@@ -1,147 +1,89 @@
+# commands/supplier.py
 import typer
-from typing import Optional, List
-from rich.console import Console
+from client import ApiClient
+from dto import NewSupplier
 from rich.table import Table
-
-from client import ApiClient, ApiError
-from dto import SupplierDto
+from rich.console import Console
 
 app = typer.Typer(help="Supplier commands")
 console = Console()
 
-
-def display_supplier(supplier: SupplierDto):
-    """Display a single supplier"""
-    table = Table(title=f"Supplier #{supplier.id}")
-    table.add_column("Property", style="cyan")
-    table.add_column("Value", style="green")
-    
-    table.add_row("ID", str(supplier.id) if supplier.id else "N/A")
-    table.add_row("Company Name", supplier.companyName)
-    table.add_row("Phone", supplier.phone)
-    table.add_row("Address", supplier.address)
-    table.add_row("Email", supplier.email)
-    table.add_row("App User ID", supplier.appUserId)
-    
-    if supplier.supplies:
-        table.add_row("Supplies Count", str(len(supplier.supplies)))
-    
-    console.print(table)
-
-
-def display_suppliers(suppliers: List[SupplierDto]):
-    """Display a list of suppliers"""
-    if not suppliers:
-        console.print("[yellow]No suppliers found[/yellow]")
-        return
-    
-    table = Table(title="Suppliers")
-    table.add_column("ID", style="cyan", justify="right")
-    table.add_column("Company Name", style="green")
-    table.add_column("Phone", style="blue")
-    table.add_column("Email", style="magenta")
-    
-    for supplier in suppliers:
-        table.add_row(
-            str(supplier.id) if supplier.id else "N/A",
-            supplier.companyName,
-            supplier.phone,
-            supplier.email
-        )
-    
-    console.print(table)
-
+def print_supplier_table(data):
+    if isinstance(data, list):
+        table = Table(title="Suppliers")
+        table.add_column("ID", style="cyan")
+        table.add_column("Company", style="magenta")
+        table.add_column("Phone")
+        table.add_column("Email")
+        for item in data:
+            table.add_row(str(item.get('id', 'N/A')), item['companyName'], item['phone'], item['email'])
+        console.print(table)
+    else:
+        table = Table(title="Supplier Details")
+        table.add_column("Field", style="cyan")
+        table.add_column("Value", style="magenta")
+        for k, v in data.items():
+            table.add_row(k, str(v))
+        console.print(table)
 
 @app.command("get")
 def get_supplier(
-    ctx: typer.Context,
-    supplier_id: int = typer.Argument(..., help="Supplier ID"),
+    supplier_id: int = typer.Argument(None, help="Supplier ID"),
+    token: str = typer.Option(None, "--token", "-t")
 ):
-    """Get supplier by ID"""
-    if ctx.obj is None:
-        ctx.obj = ApiClient()
-    client = ctx.obj
-    
+    if supplier_id is None:
+        supplier_id = int(typer.prompt("Supplier ID"))
+    client = ApiClient(token=token)
     try:
-        supplier = client.get_supplier(supplier_id)
-        display_supplier(supplier)
-    except ApiError as e:
-        console.print(f"[red]✗ Failed to get supplier: {e}[/red]")
-        raise typer.Exit(1)
+        data = client.get(f"/supplier/{supplier_id}")
+        print_supplier_table(data)
     except Exception as e:
-        console.print(f"[red]✗ Error: {e}[/red]")
-        raise typer.Exit(1)
-
+        typer.echo(f"Error: {e}", err=True)
+        raise typer.Exit(code=1)
 
 @app.command("get-all")
 def get_all_suppliers(
-    ctx: typer.Context,
-    take: Optional[int] = typer.Option(None, "--take", "-t", help="Number of suppliers to take"),
-    skip: int = typer.Option(0, "--skip", "-s", help="Number of suppliers to skip"),
+    take: int = typer.Option(10, "--take"),
+    skip: int = typer.Option(0, "--skip"),
+    token: str = typer.Option(None, "--token", "-t")
 ):
-    """Get all suppliers with pagination"""
-    if ctx.obj is None:
-        ctx.obj = ApiClient()
-    client = ctx.obj
-    
+    client = ApiClient(token=token)
     try:
-        suppliers = client.get_all_suppliers(take=take, skip=skip)
-        display_suppliers(suppliers)
-    except ApiError as e:
-        console.print(f"[red]✗ Failed to get suppliers: {e}[/red]")
-        raise typer.Exit(1)
+        data = client.get("/supplier", params={"take": take, "skip": skip})
+        print_supplier_table(data)
     except Exception as e:
-        console.print(f"[red]✗ Error: {e}[/red]")
-        raise typer.Exit(1)
-
+        typer.echo(f"Error: {e}", err=True)
+        raise typer.Exit(code=1)
 
 @app.command("create")
 def create_supplier(
-    ctx: typer.Context,
-    company_name: str = typer.Option(..., "--company", "-c", help="Company name"),
-    phone: str = typer.Option(..., "--phone", "-p", help="Phone number"),
-    address: str = typer.Option(..., "--address", "-a", help="Address"),
-    email: str = typer.Option(..., "--email", "-e", help="Email"),
-    app_user_id: str = typer.Option(..., "--app-user-id", "-u", help="App User ID"),
+    company_name: str = typer.Option(None, "--company-name", "-c"),
+    phone: str = typer.Option(None, "--phone", "-p"),
+    address: str = typer.Option(None, "--address", "-a"),
+    email: str = typer.Option(None, "--email", "-e"),
+    token: str = typer.Option(None, "--token", "-t")
 ):
-    """Create a new supplier"""
-    if ctx.obj is None:
-        ctx.obj = ApiClient()
-    client = ctx.obj
-    
-    try:
-        supplier = SupplierDto(
-            companyName=company_name,
-            phone=phone,
-            address=address,
-            email=email,
-            appUserId=app_user_id
-        )
-        client.create_supplier(supplier)
-        console.print("[green]✓ Supplier created successfully[/green]")
-    except ApiError as e:
-        console.print(f"[red]✗ Failed to create supplier: {e}[/red]")
-        raise typer.Exit(1)
-    except Exception as e:
-        console.print(f"[red]✗ Error: {e}[/red]")
-        raise typer.Exit(1)
+    if not company_name: company_name = typer.prompt("Company Name")
+    if not phone: phone = typer.prompt("Phone")
+    if not address: address = typer.prompt("Address")
+    if not email: email = typer.prompt("Email")
 
+    client = ApiClient(token=token)
+    body = NewSupplier(companyName=company_name, phone=phone, address=address, email=email).model_dump()
+    try:
+        data = client.post("/supplier", json=body)
+        typer.echo("Supplier created successfully.")
+        print_supplier_table(data)
+    except Exception as e:
+        typer.echo(f"Error: {e}", err=True)
+        raise typer.Exit(code=1)
 
 @app.command("me")
-def get_me(
-    ctx: typer.Context,
-):
-    """Get current user's supplier profile"""
-    if ctx.obj is None:
-        ctx.obj = ApiClient()
-    client = ctx.obj
-    
+def me_supplier(token: str = typer.Option(None, "--token", "-t")):
+    client = ApiClient(token=token)
     try:
-        supplier = client.get_me_supplier()
-        display_supplier(supplier)
-    except ApiError as e:
-        console.print(f"[red]✗ Failed to get profile: {e}[/red]")
-        raise typer.Exit(1)
+        data = client.get("/supplier/me")
+        print_supplier_table(data)
     except Exception as e:
-        console.print(f"[red]✗ Error: {e}[/red]")
-        raise typer.Exit(1)
+        typer.echo(f"Error: {e}", err=True)
+        raise typer.Exit(code=1)
