@@ -42,6 +42,8 @@ public class CustomerController(
     {
         var user = await userManager.FindByNameAsync(User.Identity!.Name!);
 
+        customerDto.AppUserId = user!.Id;
+
         if (await appDbContext.Customers.Where(c => c.AppUserId == user!.Id).AnyAsync())
             return Conflict("Аккаунт покупателя уже существует");
 
@@ -61,8 +63,8 @@ public class CustomerController(
             .Include(c => c.Sales)
             .FirstOrDefaultAsync();
 
-        return customer == null 
-            ? NotFound() 
+        return customer == null
+            ? NotFound()
             : Ok(mapperService.ToDto(customer));
     }
 
@@ -71,12 +73,14 @@ public class CustomerController(
     [ProducesResponseType<CustomerDto>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll([FromQuery] int? take, [FromQuery] int skip = 0)
     {
-        var customers = appDbContext.Customers.Skip(skip);
+        var customers = appDbContext.Customers.OrderBy(c => c.Id).Skip(skip);
 
         if (take != null)
             customers = customers.Take(take ?? 0);
 
-        return Ok(customers.Select(c => mapperService.ToDto(c)));
+        return Ok(customers
+            .Include(c => c.Sales)
+            .Select(mapperService.ToDto));
     }
 }
 

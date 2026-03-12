@@ -85,6 +85,7 @@ builder.Services.AddOpenApi(options =>
 });
 
 builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<GeneratorService>();
 builder.Services.AddSingleton<MapperService>();
 
 var app = builder.Build();

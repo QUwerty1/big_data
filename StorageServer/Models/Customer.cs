@@ -12,12 +12,12 @@ public class Customer
     [MaxLength(60)]
     public required string CompanyName { get; set; }
 
-    [MaxLength(16)]
+    [MaxLength(20)]
     public required string Phone { get; set; }
 
     public required string Address { get; set; }
 
-    [MaxLength(30)]
+    [MaxLength(60)]
     public required string Email { get; set; }
 
     public virtual ICollection<Sale> Sales { get; set; } = [];

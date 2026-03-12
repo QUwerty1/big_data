@@ -19,6 +19,5 @@ public class SupplyUnit
     [Column(TypeName = "money")]
     public required decimal Price { get; set; }
 
-    [JsonIgnore]
     public virtual ICollection<Supply> Supplies { get; set; } = [];
 }

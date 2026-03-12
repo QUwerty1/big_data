@@ -70,11 +70,13 @@ public class SupplierController(
     [ProducesResponseType<CustomerDto>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll([FromQuery] int? take, [FromQuery] int skip = 0)
     {
-        var suppliers = appDbContext.Suppliers.Skip(skip);
+        var suppliers = appDbContext.Suppliers.OrderBy(s => s.Id).Skip(skip);
 
         if (take != null)
             suppliers.Take(take ?? 0);
 
-        return Ok(suppliers.Include(s => s.Supplies).Select(mapperService.ToDto));
+        return Ok(suppliers
+            .Include(s => s.Supplies)
+            .Select(mapperService.ToDto));
     }
 }
