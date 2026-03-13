@@ -8,12 +8,10 @@ using StorageServer.Models;
 namespace StorageServer.Services;
 
 public class GeneratorService(
-    UserManager<AppUser> userManager,
     AppDbContext dbContext,
     IPasswordHasher<AppUser> passwordHasher
 )
 {
-    private readonly UserManager<AppUser> _userManager = userManager;
     private readonly AppDbContext _dbContext = dbContext;
     private readonly IPasswordHasher<AppUser> _passwordHasher = passwordHasher;
 
@@ -120,11 +118,10 @@ public class GeneratorService(
         if (!customerIds.Any())
             throw new InvalidOperationException("Нет покупателей");
 
-        var productIds = await _dbContext.Products
-            .Select(p => p.Id)
-            .ToListAsync();
+        var products = await _dbContext.Products
+            .ToDictionaryAsync(p => p.Id);
 
-        if (!productIds.Any())
+        if (!products.Any())
             throw new InvalidOperationException("Нет товаров");
 
         var sales = new List<Sale>();
@@ -146,8 +143,9 @@ public class GeneratorService(
 
         var saleUnitFaker = new Faker<SaleUnit>()
             .RuleFor(su => su.Amount, f => f.Random.Int(1, 100))
-            .RuleFor(su => su.ProductId, f => f.PickRandom(productIds))
-            .RuleFor(su => su.Price, f => Math.Round(f.Random.Decimal(10, 5000), 2));
+            .RuleFor(su => su.ProductId, f => f.PickRandom(products.Keys.ToArray()))
+            .RuleFor(su => su.Price, (f, su) => 
+                Math.Round(products[su.ProductId].Price * f.Random.Decimal(0.8m, 1.2m), 2));
 
         for (int i = 0; i < count; i++)
         {
@@ -187,11 +185,10 @@ public class GeneratorService(
         if (!supplierIds.Any())
             throw new InvalidOperationException("Нет поставщиков");
 
-        var productIds = await _dbContext.Products
-            .Select(p => p.Id)
-            .ToListAsync();
+        var products = await _dbContext.Products
+            .ToDictionaryAsync(p => p.Id);
 
-        if (!productIds.Any())
+        if (!products.Any())
             throw new InvalidOperationException("Нет товаров");
 
         var supplies = new List<Supply>();
@@ -213,8 +210,9 @@ public class GeneratorService(
 
         var supplyUnitFaker = new Faker<SupplyUnit>()
             .RuleFor(su => su.Amount, f => f.Random.Int(1, 100))
-            .RuleFor(su => su.ProductId, f => f.PickRandom(productIds))
-            .RuleFor(su => su.Price, f => Math.Round(f.Random.Decimal(10, 5000), 2));
+            .RuleFor(su => su.ProductId, f => f.PickRandom(products.Keys.ToArray()))
+            .RuleFor(su => su.Price, (f, su) => 
+                Math.Round(products[su.ProductId].Price * f.Random.Decimal(0.8m, 1.2m), 2));
 
         for (int i = 0; i < count; i++)
         {
