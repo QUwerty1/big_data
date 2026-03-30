@@ -54,18 +54,32 @@ class SaleUnitDto(BaseModel):
     productId: int
     price: float
 
+class SupplyUnitDto(BaseModel):
+    id: Optional[int] = None
+    amount: int
+    productId: int
+    price: float
+
+class SaleViewDto(BaseModel):
+    id: Optional[int] = None
+    customerId: int
+    realDate: Optional[str] = None
+    plannedDate: Optional[str] = None
+    saleUnitIds: Optional[List[int]] = []
+
+class SupplyViewDto(BaseModel):
+    id: Optional[int] = None
+    supplierId: Optional[int] = None
+    realDate: Optional[str] = None
+    plannedDate: Optional[str] = None
+    supplyUnitIds: Optional[List[int]] = []
+
 class SaleDto(BaseModel):
     id: Optional[int] = None
     customerId: int
     realDate: Optional[str] = None
     plannedDate: Optional[str] = None
     saleUnits: Optional[List[SaleUnitDto]] = []
-
-class SupplyUnitDto(BaseModel):
-    id: Optional[int] = None
-    amount: int
-    productId: int
-    price: float
 
 class SupplyDto(BaseModel):
     id: Optional[int] = None

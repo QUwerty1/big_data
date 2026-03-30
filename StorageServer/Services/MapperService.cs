@@ -46,4 +46,28 @@ public partial class MapperService
 
     public partial ProductDto ToDto(Product product);
     public partial Product ToEntity(ProductDto dto);
+
+    public SaleViewDto ToViewDto(Sale sale)
+    {
+        return new SaleViewDto
+        {
+            Id = sale.Id,
+            CustomerId = sale.CustomerId,
+            RealDate = sale.RealDate,
+            PlannedDate = sale.PlannedDate,
+            SaleUnitIds = sale.SaleUnits.Select(su => su.Id).ToList()
+        };
+    }
+
+    public SupplyViewDto ToViewDto(Supply supply)
+    {
+        return new SupplyViewDto
+        {
+            Id = supply.Id,
+            SupplierId = supply.SupplierId,
+            RealDate = supply.RealDate,
+            PlannedDate = supply.PlannedDate,
+            SupplyUnitIds = supply.SupplyUnits.Select(su => su.Id).ToList()
+        };
+    }
 }

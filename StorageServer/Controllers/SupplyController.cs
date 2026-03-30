@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,8 @@ namespace StorageServer.Controllers;
 [Authorize]
 public class SupplyController(
     AppDbContext appDbContext,
-    MapperService mapperService
+    MapperService mapperService,
+    UserManager<AppUser> userManager
 ) : ControllerBase
 {
     [HttpGet]
@@ -23,23 +25,49 @@ public class SupplyController(
     {
         return Ok(appDbContext.Supplies
             .Include(s => s.SupplyUnits)
-            .Select(mapperService.ToDto));
+            .Select(mapperService.ToViewDto));
     }
 
     [HttpGet("{supply_id}")]
-    [Authorize(Policy = "IsStaff")]
-    [ProducesResponseType<SaleDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<SupplyDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Get([FromRoute] int supply_id)
     {
-        var supply = appDbContext.Supplies
-            .Where(s => s.Id == supply_id)
+        var user = await userManager.FindByNameAsync(User.Identity!.Name!);
+
+        if (user == null)
+            return NotFound();
+
+        if (user.IsStaff)
+        {
+            var supply = appDbContext.Supplies
+                .Where(s => s.Id == supply_id)
+                .Include(s => s.SupplyUnits)
+                .FirstOrDefault();
+
+            if (supply == null)
+                return NotFound();
+
+            return Ok(mapperService.ToDto(supply));
+        }
+
+        var supplier = await appDbContext.Suppliers
+            .Where(s => s.AppUserId == user.Id)
+            .FirstOrDefaultAsync();
+
+        if (supplier == null)
+            return NotFound();
+
+        var supplyForSupplier = appDbContext.Supplies
+            .Where(s => s.Id == supply_id && s.SupplierId == supplier.Id)
             .Include(s => s.SupplyUnits)
             .FirstOrDefault();
 
-        return supply == null 
-            ? NotFound() 
-            : Ok(mapperService.ToDto(supply));
+        if (supplyForSupplier == null)
+            return NotFound();
+
+        return Ok(mapperService.ToDto(supplyForSupplier));
     }
 
     [HttpPost]
@@ -68,14 +96,14 @@ public class SupplyController(
             return NotFound();
 
         appDbContext.RemoveRange(supply.SupplyUnits);
-        
+
         var newSupplyUnits = supplyDto.SupplyUnits.Select(mapperService.ToEntity).ToArray();
 
         supply.SupplierId = supplyDto.SupplierId;
         supply.PlannedDate = supplyDto.PlannedDate;
         supply.RealDate = supplyDto.RealDate;
         supply.SupplyUnits = newSupplyUnits;
-        
+
         await appDbContext.SaveChangesAsync();
 
         return Ok();

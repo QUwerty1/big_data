@@ -11,7 +11,7 @@ from config import format_price
 app = typer.Typer(help="Sale commands")
 console = Console()
 
-def print_sale_table(data):
+def print_sale_table(data, show_units=False):
     if isinstance(data, list):
         table = Table(title="Sales")
         table.add_column("ID", style="cyan")
@@ -21,8 +21,12 @@ def print_sale_table(data):
         table.add_column("Total", style="green", justify="right")
         for item in data:
             total = 0
+            # Check for saleUnits (SaleDto) or saleUnitIds (SaleViewDto)
             if 'saleUnits' in item and item['saleUnits']:
                 total = sum(unit.get('price', 0) * unit.get('amount', 0) for unit in item['saleUnits'])
+            elif 'saleUnitIds' in item and item['saleUnitIds']:
+                # For SaleViewDto, we only have IDs, cannot calculate total
+                total = 0
             table.add_row(
                 str(item.get('id', 'N/A')),
                 str(item.get('customerId', 'N/A')),
@@ -38,6 +42,8 @@ def print_sale_table(data):
         for k, v in data.items():
             if k == 'saleUnits' and isinstance(v, list):
                 continue  # Skip saleUnits, will show in separate table
+            elif k == 'saleUnitIds' and isinstance(v, list):
+                continue  # Skip saleUnitIds
             elif 'price' in k.lower() and isinstance(v, (int, float)):
                 table.add_row(k, format_price(v))
             elif 'date' in k.lower() and v:
@@ -45,7 +51,8 @@ def print_sale_table(data):
             else:
                 table.add_row(k, str(v))
         console.print(table)
-        
+
+        # Show saleUnits if present (SaleDto)
         if 'saleUnits' in data and data['saleUnits']:
             units_table = Table(title="Sale Units", box=rich.box.DOUBLE_EDGE) # type: ignore
             units_table.add_column("ID", style="cyan", justify="right")
@@ -53,7 +60,7 @@ def print_sale_table(data):
             units_table.add_column("Amount", justify="right")
             units_table.add_column("Price", style="green", justify="right")
             units_table.add_column("Total", style="green", justify="right")
-            
+
             grand_total = 0
             for unit in data['saleUnits']:
                 unit_total = unit.get('price', 0) * unit.get('amount', 0)
@@ -65,13 +72,13 @@ def print_sale_table(data):
                     format_price(unit.get('price', 0)),
                     format_price(unit_total)
                 )
-            
+
             # Add total row
             units_table.add_row(
                 "", "", "", "Grand Total:", format_price(grand_total),
                 style="bold"
             )
-            
+
             console.print()  # Empty line between tables
             console.print(units_table)
 

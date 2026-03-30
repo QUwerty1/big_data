@@ -23,24 +23,51 @@ public class SaleController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll()
     {
-        return Ok(appDbContext.Sales.Include(su => su.SaleUnits).Select(mapperService.ToDto));
+        return Ok(appDbContext.Sales
+            .Include(s => s.SaleUnits)
+            .Select(mapperService.ToViewDto));
     }
 
     [HttpGet("{sale_id}")]
-    [Authorize(Policy = "IsStaff")]
     [ProducesResponseType<SaleDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Get([FromRoute] int sale_id)
     {
-        var sale = appDbContext.Sales
-            .Where(s => s.Id == sale_id)
+        var user = await userManager.FindByNameAsync(User.Identity!.Name!);
+
+        if (user == null)
+            return NotFound();
+
+        if (user.IsStaff)
+        {
+            var sale = appDbContext.Sales
+                .Where(s => s.Id == sale_id)
+                .Include(s => s.SaleUnits)
+                .FirstOrDefault();
+
+            if (sale == null)
+                return NotFound();
+
+            return Ok(mapperService.ToDto(sale));
+        }
+
+        var customer = await appDbContext.Customers
+            .Where(c => c.AppUserId == user.Id)
+            .FirstOrDefaultAsync();
+
+        if (customer == null)
+            return NotFound();
+
+        var saleForCustomer = appDbContext.Sales
+            .Where(s => s.Id == sale_id && s.CustomerId == customer.Id)
             .Include(s => s.SaleUnits)
             .FirstOrDefault();
 
-        if (sale == null)
+        if (saleForCustomer == null)
             return NotFound();
 
-        return Ok(mapperService.ToDto(sale));
+        return Ok(mapperService.ToDto(saleForCustomer));
     }
 
     [HttpPost]
@@ -69,7 +96,7 @@ public class SaleController(
             return NotFound();
 
         appDbContext.RemoveRange(sale.SaleUnits);
-        
+
         var newSaleUnits = saleDto.SaleUnits.Select(mapperService.ToEntity).ToArray();
 
         sale.CustomerId = saleDto.CustomerId;
@@ -88,7 +115,7 @@ public class SaleController(
         var user = await userManager.FindByNameAsync(User.Identity!.Name!);
         var customer = await appDbContext.Customers
             .Include(c => c.Sales)
-            .ThenInclude(sale => sale.SaleUnits)
+            .ThenInclude(s => s.SaleUnits)
             .Where(c => c.AppUserId == user!.Id)
             .FirstOrDefaultAsync();
 
@@ -97,6 +124,6 @@ public class SaleController(
             return NotFound();
         }
 
-        return Ok(customer.Sales.Select(mapperService.ToDto));
+        return Ok(customer.Sales.Select(mapperService.ToViewDto));
     }
 }

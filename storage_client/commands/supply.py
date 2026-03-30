@@ -22,8 +22,12 @@ def print_supply_table(data):
         table.add_column("Total", style="green", justify="right")
         for item in data:
             total = 0
+            # Check for supplyUnits (SupplyDto) or supplyUnitIds (SupplyViewDto)
             if 'supplyUnits' in item and item['supplyUnits']:
                 total = sum(unit.get('price', 0) * unit.get('amount', 0) for unit in item['supplyUnits'])
+            elif 'supplyUnitIds' in item and item['supplyUnitIds']:
+                # For SupplyViewDto, we only have IDs, cannot calculate total
+                total = 0
             table.add_row(
                 str(item.get('id', 'N/A')),
                 str(item.get('supplierId', 'N/A')),
@@ -40,6 +44,8 @@ def print_supply_table(data):
         for k, v in data.items():
             if k == 'supplyUnits' and isinstance(v, list):
                 continue  # Skip supplyUnits, will show in separate table
+            elif k == 'supplyUnitIds' and isinstance(v, list):
+                continue  # Skip supplyUnitIds
             elif 'price' in k.lower() and isinstance(v, (int, float)):
                 table.add_row(k, format_price(v))
             elif 'date' in k.lower() and v:
@@ -47,7 +53,7 @@ def print_supply_table(data):
             else:
                 table.add_row(k, str(v))
         console.print(table)
-        
+
         # Second table: Supply Units
         if 'supplyUnits' in data and data['supplyUnits']:
             units_table = Table(title="Supply Units", box=rich.box.DOUBLE_EDGE) # type: ignore
@@ -56,7 +62,7 @@ def print_supply_table(data):
             units_table.add_column("Amount", justify="right")
             units_table.add_column("Price", style="green", justify="right")
             units_table.add_column("Total", style="green", justify="right")
-            
+
             grand_total = 0
             for unit in data['supplyUnits']:
                 unit_total = unit.get('price', 0) * unit.get('amount', 0)
@@ -68,13 +74,13 @@ def print_supply_table(data):
                     format_price(unit.get('price', 0)),
                     format_price(unit_total)
                 )
-            
+
             # Add total row
             units_table.add_row(
                 "", "", "", "Grand Total:", format_price(grand_total),
                 style="bold"
             )
-            
+
             console.print()  # Empty line between tables
             console.print(units_table)
 
