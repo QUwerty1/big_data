@@ -21,6 +21,7 @@ public class GeneratorService(
             .RuleFor(u => u.UserName, f => f.Internet.UserName())
             .RuleFor(u => u.Email, f => f.Internet.Email())
             .RuleFor(u => u.IsStaff, false)
+            .RuleFor(u => u.IsGenerated, true)
             .RuleFor(u => u.NormalizedUserName, (f, u) => u.UserName!.Normalize())
             .RuleFor(u => u.NormalizedEmail, (f, u) => u.Email!.Normalize())
             .RuleFor(u => u.SecurityStamp, f => Guid.NewGuid().ToString())

@@ -8,7 +8,9 @@ from settings import (
     EXECUTION_INTERVAL_SECONDS,
     USE_CASE_PROBABILITIES,
     LOG_FILE,
-    LOG_LEVEL
+    LOG_LEVEL,
+    customer_usernames,
+    supplier_usernames
 )
 
 # Configure logging
@@ -94,8 +96,9 @@ class SchedulerApp:
         logger.info("DB Test Application Started")
         logger.info(f"Execution Interval: {EXECUTION_INTERVAL_SECONDS} seconds")
         logger.info(f"Use Case Probabilities: {USE_CASE_PROBABILITIES}")
+        logger.info(f"Loaded {len(customer_usernames)} customers and {len(supplier_usernames)} suppliers")
         logger.info("="*60)
-        
+
         # Schedule the task
         schedule.every(EXECUTION_INTERVAL_SECONDS).seconds.do(self._run_scheduled_task)
         

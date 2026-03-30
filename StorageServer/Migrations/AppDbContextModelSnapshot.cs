@@ -54,6 +54,9 @@ namespace StorageServer.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsGenerated")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsStaff")
                         .HasColumnType("bit");
 

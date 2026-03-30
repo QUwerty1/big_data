@@ -3,3 +3,4 @@
 **/obj
 **/.venv
 **/__pycache__
+**/db_test_app.log

@@ -1,3 +1,6 @@
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
+
 EXECUTION_INTERVAL_SECONDS = 3
 
 USE_CASE_PROBABILITIES = {
@@ -9,91 +12,48 @@ USE_CASE_PROBABILITIES = {
 API_BASE_URL = "http://localhost:5031/"
 API_TIMEOUT = 10
 
-supplier_usernames = [
-    "Trent.Bayer",
-    "Sid.Swift51",
-    "Emmanuelle_Greenholt48",
-    "Princess64",
-    "Tyra_Rolfson",
-    "Lacy.Cormier20",
-    "Lonzo.Terry",
-    "Alexie_Pfeffer0",
-    "Annamarie8",
-    "Joanie.Brakus",
-    "Dana_Hand",
-    "Tyra.Hoppe45",
-    "Arnoldo.Robel",
-    "Theresia_Senger42",
-    "Hilton.Kuhic",
-    "Brandy_Kiehn",
-    "Elenora.Kiehn",
-    "Arlie42",
-    "Christ_Stracke",
-    "Merl_Ratke",
-    "Dorthy.Upton61",
-    "Esteban14",
-    "Toby94",
-    "Herminio.Wolff",
-    "Gay.Vandervort",
-    "Nathanael_Roob",
-    "Mariah_Spencer",
-    "Meda.Ankunding",
-    "Colin_Kirlin",
-    "Maybell_Trantow",
-    "Shane_Mante25",
-    "Desiree.Jerde68",
-    "Sophie_Grant",
-    "Laverna_Rippin",
-    "Marlin_Streich58",
-    "Christy88",
-    "Marietta61",
-    "Allan.Crist",
-    "Cicero_Bins81",
-    "Eric_Emmerich",
-]
+CONNECTION_STRING = "mssql+pymssql://sa:gRdpW6eEFqNG@127.0.0.1:1433/Storage"
 
-customer_usernames = [
-    "Ellsworth.Nolan7",
-    "Markus_Renner",
-    "Austin.Ernser77",
-    "Carissa.Nader",
-    "Jarvis_Toy",
-    "Ryley79",
-    "Suzanne.Kerluke",
-    "Gerhard_Rowe",
-    "Alan37",
-    "Jamey_Sanford30",
-    "Kaya_OKeefe",
-    "Rafaela39",
-    "Thora_Ankunding82",
-    "Reyes.Ratke99",
-    "Chaz.McClure",
-    "Mackenzie_Ruecker94",
-    "Monica14",
-    "Ozella8",
-    "Edgar39",
-    "Rowan.Konopelski46",
-    "Eliseo_Smitham",
-    "Hilbert20",
-    "Kiara.Brown75",
-    "Tre_Daniel",
-    "Jaquelin34",
-    "Valentin22",
-    "Aida.Smitham64",
-    "Armando.Farrell",
-    "Jamey_Prosacco93",
-    "Lorenzo_Boyer8",
-    "Lamar_Carroll",
-    "Conrad41",
-    "Zechariah_Bins",
-    "Mohamed.MacGyver34",
-    "Jamaal_Russel",
-    "Kris18",
-    "Odie.Turcotte6",
-    "Arielle.Parker26",
-    "Elisabeth35",
-    "Kurt.Hermann20",
-]
+engine = create_engine(CONNECTION_STRING)
+SessionLocal = sessionmaker(bind=engine)
+
+
+def load_generated_customers() -> list[str]:
+    """Get up to 50 customers with IsGenerated = true"""
+    session = SessionLocal()
+    try:
+        query = text("""
+            SELECT TOP 50 u.UserName
+            FROM Users u
+            INNER JOIN Customers c ON u.Id = c.AppUserId
+            WHERE u.IsGenerated = 1
+            ORDER BY NEWID()
+        """)
+        result = session.execute(query)
+        return [row.UserName for row in result]
+    finally:
+        session.close()
+
+
+def load_generated_suppliers() -> list[str]:
+    """Get up to 50 suppliers with IsGenerated = true"""
+    session = SessionLocal()
+    try:
+        query = text("""
+            SELECT TOP 50 u.UserName
+            FROM Users u
+            INNER JOIN Suppliers s ON u.Id = s.AppUserId
+            WHERE u.IsGenerated = 1
+            ORDER BY NEWID()
+        """)
+        result = session.execute(query)
+        return [row.UserName for row in result]
+    finally:
+        session.close()
+
+
+customer_usernames = load_generated_customers()
+supplier_usernames = load_generated_suppliers()
 
 
 STAFF_CREDENTIALS = [
