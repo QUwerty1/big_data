@@ -1,12 +1,19 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
-EXECUTION_INTERVAL_SECONDS = 3
+EXECUTION_INTERVAL_SECONDS = 1
 
 USE_CASE_PROBABILITIES = {
-    "staff_product_update": 15,  # UC01
-    "customer_self_service": 45,  # UC02
-    "supplier_self_service": 40,  # UC03
+    "staff_get_all_products": 2,  # UC01 - Чтение продуктов
+    "staff_get_sale_details": 23,  # UC02 - Чтение продажи с JOIN
+    "staff_get_supply_details": 15,  # UC03 - Чтение поставки с JOIN
+    "customer_get_own_sales": 18,  # UC04 - Клиент: самообслуживание
+    "customer_get_own_sale": 10,  # UC05 - Клиент: доступ к своей продаже
+    "supplier_get_own_supplies": 10,  # UC06 - Поставщик: самообслуживание
+    "supplier_get_own_supply": 5,  # UC07 - Поставщик: доступ к своей поставке
+    "staff_create_sale": 10,  # UC08 - Запись продажи
+    "staff_create_supply": 5,  # UC09 - Запись поставки
+    "staff_get_all_sales": 2,  # UC10 - Чтение всех продаж с JOINs
 }
 
 API_BASE_URL = "http://localhost:5031/"
@@ -19,7 +26,7 @@ SessionLocal = sessionmaker(bind=engine)
 
 
 def load_generated_customers() -> list[str]:
-    """Get up to 50 customers with IsGenerated = true"""
+    """Получить до 50 клиентов с IsGenerated = true"""
     session = SessionLocal()
     try:
         query = text("""
@@ -36,7 +43,7 @@ def load_generated_customers() -> list[str]:
 
 
 def load_generated_suppliers() -> list[str]:
-    """Get up to 50 suppliers with IsGenerated = true"""
+    """Получить до 50 поставщиков с IsGenerated = true"""
     session = SessionLocal()
     try:
         query = text("""
@@ -68,9 +75,9 @@ SUPPLIER_CREDENTIALS: list[dict[str, str]] = list(
     map(lambda s: {"username": s, "password": "123456789"}, supplier_usernames)
 )
 
-# Price variation for product updates (±20%)
+# Вариация цены для обновления продуктов (±20%)
 PRICE_VARIATION_PERCENT = 20
 
-# Logging
+# Логирование
 LOG_FILE = "db_test_app.log"
 LOG_LEVEL = "INFO"
