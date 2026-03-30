@@ -88,6 +88,24 @@ public class SupplierController(
             .Include(s => s.Supplies)
             .Select(mapperService.ToDto));
     }
+
+    // [HttpGet("me")]
+    // public async Task<IActionResult> GetMe()
+    // {
+    //     var user = await userManager.FindByNameAsync(User.Identity!.Name!);
+    //     var supplier = await appDbContext.Suppliers
+    //         .Include(s => s.Supplies)
+    //         .ThenInclude(supply => supply.SupplyUnits)
+    //         .Where(s => s.AppUserId == user!.Id)
+    //         .FirstOrDefaultAsync();
+
+    //     if (supplier == null)
+    //     {
+    //         return NotFound();
+    //     }
+
+    //     return Ok(supplier.Supplies.Select(mapperService.ToDto));
+    // }
 }
 
 public record NewSupplier(

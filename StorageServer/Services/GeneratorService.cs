@@ -19,7 +19,12 @@ public class GeneratorService(
     {
         var userFaker = new Faker<AppUser>()
             .RuleFor(u => u.UserName, f => f.Internet.UserName())
+            .RuleFor(u => u.Email, f => f.Internet.Email())
             .RuleFor(u => u.IsStaff, false)
+            .RuleFor(u => u.NormalizedUserName, (f, u) => u.UserName!.Normalize())
+            .RuleFor(u => u.NormalizedEmail, (f, u) => u.Email!.Normalize())
+            .RuleFor(u => u.SecurityStamp, f => Guid.NewGuid().ToString())
+            .RuleFor(u => u.ConcurrencyStamp, f => Guid.NewGuid().ToString())
             .RuleFor(u => u.PasswordHash, (_, u) =>
                 _passwordHasher.HashPassword(u, "123456789"));
 
@@ -144,7 +149,7 @@ public class GeneratorService(
         var saleUnitFaker = new Faker<SaleUnit>()
             .RuleFor(su => su.Amount, f => f.Random.Int(1, 100))
             .RuleFor(su => su.ProductId, f => f.PickRandom(products.Keys.ToArray()))
-            .RuleFor(su => su.Price, (f, su) => 
+            .RuleFor(su => su.Price, (f, su) =>
                 Math.Round(products[su.ProductId].Price * f.Random.Decimal(0.8m, 1.2m), 2));
 
         for (int i = 0; i < count; i++)
@@ -211,7 +216,7 @@ public class GeneratorService(
         var supplyUnitFaker = new Faker<SupplyUnit>()
             .RuleFor(su => su.Amount, f => f.Random.Int(1, 100))
             .RuleFor(su => su.ProductId, f => f.PickRandom(products.Keys.ToArray()))
-            .RuleFor(su => su.Price, (f, su) => 
+            .RuleFor(su => su.Price, (f, su) =>
                 Math.Round(products[su.ProductId].Price * f.Random.Decimal(0.8m, 1.2m), 2));
 
         for (int i = 0; i < count; i++)

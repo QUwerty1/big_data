@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,8 @@ namespace StorageServer.Controllers;
 [Authorize]
 public class SaleController(
     AppDbContext appDbContext,
-    MapperService mapperService
+    MapperService mapperService,
+    UserManager<AppUser> userManager
 ) : ControllerBase
 {
     [HttpGet]
@@ -78,5 +80,23 @@ public class SaleController(
         await appDbContext.SaveChangesAsync();
 
         return Ok();
+    }
+
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMe()
+    {
+        var user = await userManager.FindByNameAsync(User.Identity!.Name!);
+        var customer = await appDbContext.Customers
+            .Include(c => c.Sales)
+            .ThenInclude(sale => sale.SaleUnits)
+            .Where(c => c.AppUserId == user!.Id)
+            .FirstOrDefaultAsync();
+
+        if (customer == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(customer.Sales.Select(mapperService.ToDto));
     }
 }
