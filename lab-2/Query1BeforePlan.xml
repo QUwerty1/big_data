@@ -1,0 +1,165 @@
+<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan" Version="1.564" Build="16.0.4255.1">
+    <BatchSequence>
+        <Batch>
+            <Statements>
+                <StmtSimple StatementText="SELECT [s1].[Id], [s1].[Address], [s1].[AppUserId], [s1].[CompanyName], [s1].[Email], [s1].[Phone], [s0].[Id], [s0].[PlannedDate], [s0].[RealDate], [s0].[SupplierId]&#xd;&#xa;FROM (     SELECT [s].[Id], [s].[Address], [s].[AppUserId], [s].[CompanyName], [s].[Email], [s].[Phone]&#xd;&#xa;    FROM [Suppliers] AS [s]&#xd;&#xa;    ORDER BY [s].[Id]     OFFSET 0 ROWS ) AS [s1] LEFT JOIN [Supplies] AS [s0] ON [s1].[Id] = [s0].[SupplierId]&#xd;&#xa;ORDER BY [s1].[Id]" StatementId="1" StatementCompId="1" StatementType="SELECT" StatementSqlHandle="0x090067201F8A8A45D2B067D408A7C7E1FEE60000000000000000000000000000000000000000000000000000" DatabaseContextSettingsId="6" ParentObjectId="0" StatementParameterizationType="0" RetrievedFromCache="true" StatementSubTreeCost="1.03755" StatementEstRows="11006.6" SecurityPolicyApplied="false" StatementOptmLevel="FULL" QueryHash="0xB97ACB079F857366" QueryPlanHash="0x8B22DDEC8064FC7F" CardinalityEstimationModelVersion="160">
+                    <StatementSetOptions QUOTED_IDENTIFIER="true" ARITHABORT="true" CONCAT_NULL_YIELDS_NULL="true" ANSI_NULLS="true" ANSI_PADDING="true" ANSI_WARNINGS="true" NUMERIC_ROUNDABORT="false"></StatementSetOptions>
+                    <QueryPlan DegreeOfParallelism="1" MemoryGrant="2000" CachedPlanSize="40" CompileTime="38" CompileCPU="38" CompileMemory="328">
+                        <MemoryGrantInfo SerialRequiredMemory="512" SerialDesiredMemory="2000" RequiredMemory="512" DesiredMemory="2000" RequestedMemory="2000" GrantWaitTime="0" MaxQueryMemory="176448" GrantedMemory="2000" MaxUsedMemory="712" LastRequestedMemory="0" IsMemoryGrantFeedbackAdjusted="No: First Execution"></MemoryGrantInfo>
+                        <OptimizerHardwareDependentProperties EstimatedAvailableMemoryGrant="20979" EstimatedPagesCached="10489" EstimatedAvailableDegreeOfParallelism="4" MaxCompileMemory="466656"></OptimizerHardwareDependentProperties>
+                        <OptimizerStatsUsage>
+                            <StatisticsInfo LastUpdate="2026-05-21T23:08:31.11" ModificationCount="0" SamplingPercent="100" Statistics="[PK_Suppliers]" Table="[Suppliers]" Schema="[dbo]" Database="[Storage]"></StatisticsInfo>
+                            <StatisticsInfo LastUpdate="2026-05-21T23:08:44.65" ModificationCount="6" SamplingPercent="100" Statistics="[PK_Supplies]" Table="[Supplies]" Schema="[dbo]" Database="[Storage]"></StatisticsInfo>
+                            <StatisticsInfo LastUpdate="2026-05-22T01:07:39.80" ModificationCount="6" SamplingPercent="100" Statistics="[IX_Supplies_SupplierId]" Table="[Supplies]" Schema="[dbo]" Database="[Storage]"></StatisticsInfo>
+                        </OptimizerStatsUsage>
+                        <QueryTimeStats ElapsedTime="88" CpuTime="88"></QueryTimeStats>
+                        <RelOp NodeId="0" PhysicalOp="Merge Join" LogicalOp="Left Outer Join" EstimateRows="11006.6" EstimateIO="0" EstimateCPU="0.0487133" AvgRowSize="4666" EstimatedTotalSubtreeCost="1.03755" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                            <OutputList>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="Id"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="CompanyName"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="Phone"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="Address"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="Email"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="AppUserId"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Alias="[s0]" Column="Id"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Alias="[s0]" Column="SupplierId"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Alias="[s0]" Column="RealDate"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Alias="[s0]" Column="PlannedDate"></ColumnReference>
+                            </OutputList>
+                            <RunTimeInformation>
+                                <RunTimeCountersPerThread Thread="0" ActualRows="13702" Batches="0" ActualElapsedms="41" ActualCPUms="41" ActualScans="0" ActualLogicalReads="0" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row"></RunTimeCountersPerThread>
+                            </RunTimeInformation>
+                            <Merge ManyToMany="0">
+                                <InnerSideJoinColumns>
+                                    <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Alias="[s0]" Column="SupplierId"></ColumnReference>
+                                </InnerSideJoinColumns>
+                                <OuterSideJoinColumns>
+                                    <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="Id"></ColumnReference>
+                                </OuterSideJoinColumns>
+                                <Residual>
+                                    <ScalarOperator ScalarString="[Storage].[dbo].[Suppliers].[Id] as [s].[Id]=[Storage].[dbo].[Supplies].[SupplierId] as [s0].[SupplierId]">
+                                        <Compare CompareOp="EQ">
+                                            <ScalarOperator>
+                                                <Identifier>
+                                                    <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="Id"></ColumnReference>
+                                                </Identifier>
+                                            </ScalarOperator>
+                                            <ScalarOperator>
+                                                <Identifier>
+                                                    <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Alias="[s0]" Column="SupplierId"></ColumnReference>
+                                                </Identifier>
+                                            </ScalarOperator>
+                                        </Compare>
+                                    </ScalarOperator>
+                                </Residual>
+                                <RelOp NodeId="1" PhysicalOp="Top" LogicalOp="Top" EstimateRows="10000" EstimateIO="0" EstimateCPU="0.001" AvgRowSize="4637" EstimatedTotalSubtreeCost="0.312319" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                    <OutputList>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="Id"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="CompanyName"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="Phone"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="Address"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="Email"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="AppUserId"></ColumnReference>
+                                    </OutputList>
+                                    <RunTimeInformation>
+                                        <RunTimeCountersPerThread Thread="0" ActualRows="10000" Batches="0" ActualElapsedms="16" ActualCPUms="16" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row"></RunTimeCountersPerThread>
+                                    </RunTimeInformation>
+                                    <Top RowCount="0" IsPercent="0" WithTies="0">
+                                        <TopExpression>
+                                            <ScalarOperator ScalarString="(9223372036854775807)">
+                                                <Const ConstValue="(9223372036854775807)"></Const>
+                                            </ScalarOperator>
+                                        </TopExpression>
+                                        <RelOp NodeId="2" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan" EstimateRows="10000" EstimatedRowsRead="10000" EstimateIO="0.300162" EstimateCPU="0.011157" AvgRowSize="4637" EstimatedTotalSubtreeCost="0.311319" TableCardinality="10000" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                            <OutputList>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="Id"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="CompanyName"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="Phone"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="Address"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="Email"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="AppUserId"></ColumnReference>
+                                            </OutputList>
+                                            <RunTimeInformation>
+                                                <RunTimeCountersPerThread Thread="0" ActualRows="10000" Batches="0" ActualElapsedms="14" ActualCPUms="14" ActualScans="1" ActualLogicalReads="404" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" ActualRowsRead="10000" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row"></RunTimeCountersPerThread>
+                                            </RunTimeInformation>
+                                            <IndexScan Ordered="1" ScanDirection="FORWARD" ForcedIndex="0" ForceSeek="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                                <DefinedValues>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="Id"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="CompanyName"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="Phone"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="Address"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="Email"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Alias="[s]" Column="AppUserId"></ColumnReference>
+                                                    </DefinedValue>
+                                                </DefinedValues>
+                                                <Object Database="[Storage]" Schema="[dbo]" Table="[Suppliers]" Index="[PK_Suppliers]" Alias="[s]" IndexKind="Clustered" Storage="RowStore"></Object>
+                                            </IndexScan>
+                                        </RelOp>
+                                    </Top>
+                                </RelOp>
+                                <RelOp NodeId="3" PhysicalOp="Sort" LogicalOp="Sort" EstimateRows="10006" EstimateIO="0.0112613" EstimateCPU="0.604301" AvgRowSize="35" EstimatedTotalSubtreeCost="0.676518" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                    <OutputList>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Alias="[s0]" Column="Id"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Alias="[s0]" Column="SupplierId"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Alias="[s0]" Column="RealDate"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Alias="[s0]" Column="PlannedDate"></ColumnReference>
+                                    </OutputList>
+                                    <MemoryFractions Input="1" Output="1"></MemoryFractions>
+                                    <RunTimeInformation>
+                                        <RunTimeCountersPerThread Thread="0" ActualRows="10006" Batches="0" ActualElapsedms="21" ActualCPUms="21" ActualScans="0" ActualLogicalReads="0" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" ActualRebinds="1" ActualRewinds="0" ActualEndOfScans="1" ActualExecutions="1" InputMemoryGrant="2000" OutputMemoryGrant="1616" UsedMemoryGrant="712" ActualExecutionMode="Row"></RunTimeCountersPerThread>
+                                    </RunTimeInformation>
+                                    <Sort Distinct="0">
+                                        <OrderBy>
+                                            <OrderByColumn Ascending="1">
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Alias="[s0]" Column="SupplierId"></ColumnReference>
+                                            </OrderByColumn>
+                                        </OrderBy>
+                                        <RelOp NodeId="4" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan" EstimateRows="10006" EstimatedRowsRead="10006" EstimateIO="0.0497917" EstimateCPU="0.0111636" AvgRowSize="35" EstimatedTotalSubtreeCost="0.0609553" TableCardinality="10006" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                            <OutputList>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Alias="[s0]" Column="Id"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Alias="[s0]" Column="SupplierId"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Alias="[s0]" Column="RealDate"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Alias="[s0]" Column="PlannedDate"></ColumnReference>
+                                            </OutputList>
+                                            <RunTimeInformation>
+                                                <RunTimeCountersPerThread Thread="0" ActualRows="10006" Batches="0" ActualElapsedms="5" ActualCPUms="5" ActualScans="1" ActualLogicalReads="66" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" ActualRowsRead="10006" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row"></RunTimeCountersPerThread>
+                                            </RunTimeInformation>
+                                            <IndexScan Ordered="0" ForcedIndex="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                                <DefinedValues>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Alias="[s0]" Column="Id"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Alias="[s0]" Column="SupplierId"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Alias="[s0]" Column="RealDate"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Alias="[s0]" Column="PlannedDate"></ColumnReference>
+                                                    </DefinedValue>
+                                                </DefinedValues>
+                                                <Object Database="[Storage]" Schema="[dbo]" Table="[Supplies]" Index="[PK_Supplies]" Alias="[s0]" IndexKind="Clustered" Storage="RowStore"></Object>
+                                            </IndexScan>
+                                        </RelOp>
+                                    </Sort>
+                                </RelOp>
+                            </Merge>
+                        </RelOp>
+                    </QueryPlan>
+                </StmtSimple>
+            </Statements>
+        </Batch>
+    </BatchSequence>
+</ShowPlanXML>

@@ -1,0 +1,170 @@
+<ShowPlanXML xmlns="http://schemas.microsoft.com/sqlserver/2004/07/showplan" Version="1.564" Build="16.0.4255.1">
+    <BatchSequence>
+        <Batch>
+            <Statements>
+                <StmtSimple StatementText="SELECT TOP(1)&#xd;&#xa;    [u].[Id], [u].[AccessFailedCount], [u].[ConcurrencyStamp], [u].[Email], [u].[EmailConfirmed], [u].[IsGenerated], [u].[IsStaff], [u].[LockoutEnabled], [u].[LockoutEnd], [u].[NormalizedEmail], [u].[NormalizedUserName], [u].[PasswordHash], [u].[PhoneNumber], [u].[PhoneNumberConfirmed], [u].[SecurityStamp], [u].[TwoFactorEnabled], [u].[UserName]&#xd;&#xa;FROM [Users] AS [u]&#xd;&#xa;WHERE [u].[NormalizedUserName] = &apos;ADMIN&apos;" StatementId="1" StatementCompId="1" StatementType="SELECT" StatementSqlHandle="0x0900AD9E80E3B24D8A46492DC968E6549B9E0000000000000000000000000000000000000000000000000000" DatabaseContextSettingsId="6" ParentObjectId="0" StatementParameterizationType="0" RetrievedFromCache="true" StatementSubTreeCost="1.68715" StatementEstRows="1" SecurityPolicyApplied="false" StatementOptmLevel="TRIVIAL" QueryHash="0xC5F4031342F53992" QueryPlanHash="0x41E51EEAF0866875" CardinalityEstimationModelVersion="160">
+                    <StatementSetOptions QUOTED_IDENTIFIER="true" ARITHABORT="true" CONCAT_NULL_YIELDS_NULL="true" ANSI_NULLS="true" ANSI_PADDING="true" ANSI_WARNINGS="true" NUMERIC_ROUNDABORT="false"></StatementSetOptions>
+                    <QueryPlan DegreeOfParallelism="1" CachedPlanSize="40" CompileTime="219" CompileCPU="209" CompileMemory="232">
+                        <MemoryGrantInfo SerialRequiredMemory="0" SerialDesiredMemory="0" GrantedMemory="0" MaxUsedMemory="0"></MemoryGrantInfo>
+                        <OptimizerHardwareDependentProperties EstimatedAvailableMemoryGrant="20979" EstimatedPagesCached="10489" EstimatedAvailableDegreeOfParallelism="4" MaxCompileMemory="466656"></OptimizerHardwareDependentProperties>
+                        <OptimizerStatsUsage>
+                            <StatisticsInfo LastUpdate="2026-05-22T01:53:04.60" ModificationCount="0" SamplingPercent="62.6669" Statistics="[_WA_Sys_00000003_49C3F6B7]" Table="[Users]" Schema="[dbo]" Database="[Storage]"></StatisticsInfo>
+                        </OptimizerStatsUsage>
+                        <QueryTimeStats ElapsedTime="8" CpuTime="8"></QueryTimeStats>
+                        <RelOp NodeId="0" PhysicalOp="Top" LogicalOp="Top" EstimateRows="1" EstimateIO="0" EstimateCPU="1e-07" AvgRowSize="28730" EstimatedTotalSubtreeCost="1.68715" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                            <OutputList>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="Id"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="UserName"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="NormalizedUserName"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="Email"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="NormalizedEmail"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="EmailConfirmed"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="PasswordHash"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="SecurityStamp"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="ConcurrencyStamp"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="PhoneNumber"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="PhoneNumberConfirmed"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="TwoFactorEnabled"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="LockoutEnd"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="LockoutEnabled"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="AccessFailedCount"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="IsStaff"></ColumnReference>
+                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="IsGenerated"></ColumnReference>
+                            </OutputList>
+                            <RunTimeInformation>
+                                <RunTimeCountersPerThread Thread="0" ActualRows="1" Batches="0" ActualElapsedms="8" ActualCPUms="8" ActualEndOfScans="1" ActualExecutions="1" ActualExecutionMode="Row"></RunTimeCountersPerThread>
+                            </RunTimeInformation>
+                            <Top RowCount="0" IsPercent="0" WithTies="0">
+                                <TopExpression>
+                                    <ScalarOperator ScalarString="(1)">
+                                        <Const ConstValue="(1)"></Const>
+                                    </ScalarOperator>
+                                </TopExpression>
+                                <RelOp NodeId="1" PhysicalOp="Filter" LogicalOp="Filter" EstimateRows="1" EstimateRowsWithoutRowGoal="1.00191" EstimateIO="0" EstimateCPU="0.00360018" AvgRowSize="28730" EstimatedTotalSubtreeCost="1.68715" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                    <OutputList>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="Id"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="UserName"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="NormalizedUserName"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="Email"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="NormalizedEmail"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="EmailConfirmed"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="PasswordHash"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="SecurityStamp"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="ConcurrencyStamp"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="PhoneNumber"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="PhoneNumberConfirmed"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="TwoFactorEnabled"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="LockoutEnd"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="LockoutEnabled"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="AccessFailedCount"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="IsStaff"></ColumnReference>
+                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="IsGenerated"></ColumnReference>
+                                    </OutputList>
+                                    <RunTimeInformation>
+                                        <RunTimeCountersPerThread Thread="0" ActualRows="1" Batches="0" ActualElapsedms="8" ActualCPUms="8" ActualEndOfScans="0" ActualExecutions="1" ActualExecutionMode="Row"></RunTimeCountersPerThread>
+                                    </RunTimeInformation>
+                                    <Filter StartupExpression="0">
+                                        <RelOp NodeId="2" PhysicalOp="Clustered Index Scan" LogicalOp="Clustered Index Scan" EstimateRows="19962.9" EstimateRowsWithoutRowGoal="20001" EstimatedRowsRead="20001" EstimateIO="1.66461" EstimateCPU="0.0221581" AvgRowSize="28730" EstimatedTotalSubtreeCost="1.68356" TableCardinality="20001" Parallel="0" EstimateRebinds="0" EstimateRewinds="0" EstimatedExecutionMode="Row">
+                                            <OutputList>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="Id"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="UserName"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="NormalizedUserName"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="Email"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="NormalizedEmail"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="EmailConfirmed"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="PasswordHash"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="SecurityStamp"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="ConcurrencyStamp"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="PhoneNumber"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="PhoneNumberConfirmed"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="TwoFactorEnabled"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="LockoutEnd"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="LockoutEnabled"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="AccessFailedCount"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="IsStaff"></ColumnReference>
+                                                <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="IsGenerated"></ColumnReference>
+                                            </OutputList>
+                                            <RunTimeInformation>
+                                                <RunTimeCountersPerThread Thread="0" ActualRows="8321" Batches="0" ActualElapsedms="6" ActualCPUms="6" ActualScans="1" ActualLogicalReads="966" ActualPhysicalReads="0" ActualReadAheads="0" ActualLobLogicalReads="0" ActualLobPhysicalReads="0" ActualLobReadAheads="0" ActualRowsRead="8321" ActualEndOfScans="0" ActualExecutions="1" ActualExecutionMode="Row"></RunTimeCountersPerThread>
+                                            </RunTimeInformation>
+                                            <IndexScan Ordered="0" ForcedIndex="0" ForceScan="0" NoExpandHint="0" Storage="RowStore">
+                                                <DefinedValues>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="Id"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="UserName"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="NormalizedUserName"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="Email"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="NormalizedEmail"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="EmailConfirmed"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="PasswordHash"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="SecurityStamp"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="ConcurrencyStamp"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="PhoneNumber"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="PhoneNumberConfirmed"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="TwoFactorEnabled"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="LockoutEnd"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="LockoutEnabled"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="AccessFailedCount"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="IsStaff"></ColumnReference>
+                                                    </DefinedValue>
+                                                    <DefinedValue>
+                                                        <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="IsGenerated"></ColumnReference>
+                                                    </DefinedValue>
+                                                </DefinedValues>
+                                                <Object Database="[Storage]" Schema="[dbo]" Table="[Users]" Index="[PK_Users]" Alias="[u]" IndexKind="Clustered" Storage="RowStore"></Object>
+                                            </IndexScan>
+                                        </RelOp>
+                                        <Predicate>
+                                            <ScalarOperator ScalarString="[Storage].[dbo].[Users].[NormalizedUserName] as [u].[NormalizedUserName]=N&apos;ADMIN&apos;">
+                                                <Compare CompareOp="EQ">
+                                                    <ScalarOperator>
+                                                        <Identifier>
+                                                            <ColumnReference Database="[Storage]" Schema="[dbo]" Table="[Users]" Alias="[u]" Column="NormalizedUserName"></ColumnReference>
+                                                        </Identifier>
+                                                    </ScalarOperator>
+                                                    <ScalarOperator>
+                                                        <Const ConstValue="N&apos;ADMIN&apos;"></Const>
+                                                    </ScalarOperator>
+                                                </Compare>
+                                            </ScalarOperator>
+                                        </Predicate>
+                                    </Filter>
+                                </RelOp>
+                            </Top>
+                        </RelOp>
+                    </QueryPlan>
+                </StmtSimple>
+            </Statements>
+        </Batch>
+    </BatchSequence>
+</ShowPlanXML>

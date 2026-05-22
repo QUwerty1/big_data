@@ -15,6 +15,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<AppUser>(entity =>
+        {
+            entity.Property(u => u.NormalizedUserName).HasMaxLength(256);
+        });
+
         base.OnModelCreating(modelBuilder);
     }
 }
