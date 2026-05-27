@@ -1,0 +1,7 @@
+Duration,CPU,Reads,Writes,TextData
+110005,107000,1449,0,"SELECT StatMan([SC0], [LC0], [SB0000]) ..."
+78952,61000,470,0,"SELECT [s1].[Id], [s1].[Address], [s1]...."
+32738,33000,2213,0,"SELECT TOP(1) [u].[Id], [u].[AccessFail..."
+24904,25000,1948,0,"SELECT [s1].[Id], [s1].[Address], [s1]...."
+2698,2000,276,0,"SELECT [c0].[Id], [c0].[Address], [c0]...."
+1619,2000,23,0,"SELECT [s2].[Id], [s2].[PlannedDate], [..."

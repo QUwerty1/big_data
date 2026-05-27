@@ -7,7 +7,7 @@ WITH RankedQueries AS (
         CPU,
         Reads,
         Writes,
-        TextData,
+        SUBSTRING(TextData, 0, 40) + '...' AS TextData,
         ROW_NUMBER() OVER (
             PARTITION BY TextData
             ORDER BY Duration DESC
@@ -15,7 +15,7 @@ WITH RankedQueries AS (
     FROM dbo.ProfilerResults
     WHERE TextData != N'' AND EventClass = N'sp_statement_completed'
 )
-SELECT
+SELECT TOP 6
     Duration,
     CPU,
     Reads,
