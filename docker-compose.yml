@@ -17,8 +17,20 @@ services:
     cpus: 1.0
     mem_limit: 2g
 
-    
+  mongo-db:
+    image: mongo:4.4
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=sa
+      - MONGO_INITDB_ROOT_PASSWORD=gRdpW6eEFqNG
+    ports:
+      - 27017:27017
+    user:
+      "999:999"
+    volumes:
+      - mongodb_data:/data/db
+
 volumes:
   mssql_data:
   mssql_log:
   mssql_secrets:
+  mongodb_data:
