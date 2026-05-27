@@ -1,0 +1,64 @@
+{
+    "users": [
+        {
+            "_id": "",
+            "isStaff": false,
+            "isGenerated": false,
+            "customer": {
+                "company_name": "",
+                "phone": "",
+                "address": "",
+                "email": "",
+                "sales": [
+                    "sale_id"
+                ]
+            },
+            "supplier": {
+                "company_name": "",
+                "phone": "",
+                "address": "",
+                "email": "",
+                "supplies": [
+                    "supply_id"
+                ]
+            }
+        }
+    ],
+    "sales": [
+        {
+            "_id": "",
+            "customer_id": "user_id",
+            "real_date": "",
+            "planned_date": "",
+            "sale_units": [
+                {
+                    "amount": 0,
+                    "product": "product_id",
+                    "price": 0.0
+                }
+            ]
+        }
+    ],
+    "supplies": [
+        {
+            "_id": "",
+            "supplier_id": "user_id",
+            "real_date": "",
+            "planned_date": "",
+            "supply_units": [
+                {
+                    "amount": 0,
+                    "product": "product_id",
+                    "price": 0.0
+                }
+            ]
+        }
+    ],
+    "products": [
+        {
+            "_id": "",
+            "product_name": "",
+            "price": 0.0
+        }
+    ]
+}
